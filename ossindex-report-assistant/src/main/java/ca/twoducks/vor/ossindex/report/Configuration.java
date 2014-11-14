@@ -29,6 +29,7 @@ package ca.twoducks.vor.ossindex.report;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -43,12 +44,18 @@ import org.apache.commons.codec.digest.DigestUtils;
 public class Configuration
 {
 	/**
+	 * Timestamp indicating when the configuration file was made
+	 */
+	private Long timestamp;
+	
+	/**
 	 * List of all file hashes (SHA1 sums).
 	 */
 	private List<String> files = new LinkedList<String>();
 
 	public Configuration()
 	{
+		timestamp = (new Date()).getTime();
 	}
 
 	/** Add the SHA1 sum of a file to the file list.
