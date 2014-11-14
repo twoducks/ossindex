@@ -26,15 +26,24 @@
  */
 package ca.twoducks.vor.ossindex;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Properties;
+
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.util.EntityUtils;
 
 /** Common utility code for OSSIndex access. This class identifies the appropriate
  * server for API access, and provides a simple wrapper for requests.
@@ -44,6 +53,16 @@ import java.util.Properties;
  */
 public class OssIndexAccessUtils
 {
+	/**
+	 * System property to be set to specify the OSSIndex user name.
+	 */
+	private static final String OSSINDEX_USERNAME = "OSSINDEX_USERNAME";
+
+	/**
+	 * System property to be set to specify the OSSIndex password.
+	 */
+	private static final String OSSINDEX_PASSWORD = "OSSINDEX_PASSWORD";
+
 	/**
 	 * Location of host with configuration information. This configuration is
 	 * intended for future use where we may redirect subsequent queries to
@@ -57,19 +76,81 @@ public class OssIndexAccessUtils
 	 */
 	private String host = null;
 
+	/**
+	 * Client through which the website connection is made
+	 */
+	private CloseableHttpClient client;
+
+	/**
+	 * Client context, required for handling authentication
+	 */
+	private HttpClientContext localContext;
+
 	/** Constructor.
 	 * 
 	 * Ask the config server for the appropriate API host. Fall back to the
 	 * configuration host if required.
 	 * 
+	 * The username and password supplied through the OSSINDEX_USERNAME and
+	 * OSSINDEX_PASSWORD environment variables will be used.
+	 * 
 	 * @throws IOException
 	 */
 	public OssIndexAccessUtils() throws IOException
 	{
+		init(null, null);
+	}
+
+	/** Constructor.
+	 * 
+	 * Ask the config server for the appropriate API host. Fall back to the
+	 * configuration host if required.
+	 * 
+	 * Supply a username password for authentication.
+	 * 
+	 * @param username
+	 * @param password
+	 * @throws IOException
+	 */
+	public OssIndexAccessUtils(String username, String password) throws IOException
+	{
+		init(username, password);
+	}
+
+	/**
+	 * 
+	 * @param username
+	 * @param password
+	 * @throws IOException
+	 */
+	private void init(String username, String password) throws IOException
+	{
+		client = HttpClientBuilder.create().build();
+		
 		host = getRedirectHost();
 		if(host == null) host = CONFIG_HOST;
+
+		if(username == null) username = System.getProperty(OSSINDEX_USERNAME);
+		if(password == null) password = System.getProperty(OSSINDEX_PASSWORD);
+
+		if(username == null)
+		{
+			throw new IllegalArgumentException("FATAL: Missing username. The username may be either passed in as an argument to the constructor, or specified as a system property to the JVM (-DOSSINDEX_USERNAME='name')");
+		}
+		if(password == null)
+		{
+			throw new IllegalArgumentException("FATAL: Missing password. The password may be either passed in as an argument to the constructor, or specified as a system property to the JVM (-DOSSINDEX_PASSWORD='name')");
+		}
+
+		final String user = username;
+		final String pass = password;
+
+		CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+		credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(user + ":" + pass));
+		localContext = HttpClientContext.create();
+		localContext.setCredentialsProvider(credentialsProvider);
 	}
-	
+
 	/** Override the configuration host. Intended for testing.
 	 * 
 	 * @param host
@@ -119,7 +200,7 @@ public class OssIndexAccessUtils
 				else host = "https://" + hostname;
 			}
 		}
-		catch(FileNotFoundException e)
+		catch(HttpStatusException e)
 		{
 			// If there is no properties file at the host, ignore
 		}
@@ -142,31 +223,22 @@ public class OssIndexAccessUtils
 	 */
 	public String getUrl(URL url) throws IOException
 	{
-		BufferedReader rd = null;
+		HttpGet httpget = new HttpGet(url.toString());
+		CloseableHttpResponse response = client.execute(httpget, localContext);
 		try
 		{
-			rd = new BufferedReader(new InputStreamReader(url.openStream()));
-
-			StringBuffer result = new StringBuffer();
-			String line = "";
-			while ((line = rd.readLine()) != null)
+			int code = response.getStatusLine().getStatusCode();
+			switch(code)
 			{
-				result.append(line).append('\n');
+			case 200: break;
+			default:
+				throw new HttpStatusException(url, 404);
 			}
-
-			return result.toString();
+			return EntityUtils.toString(response.getEntity());
 		}
 		finally
 		{
-			try
-			{
-				if(rd != null) rd.close();
-			}
-			catch (IOException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			response.close();
 		}
 	}
 
