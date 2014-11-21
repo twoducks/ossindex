@@ -63,7 +63,7 @@ public class Assistant
 	 */
 	public Assistant() throws IOException
 	{
-		utils = new OssIndexAccessUtils();
+//		utils = new OssIndexAccessUtils();
 	}
 
 	/** Scan the specified file/directory, reporting on any third party.

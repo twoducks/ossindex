@@ -71,7 +71,9 @@ public class Configuration
 		try
 		{
 			is = new FileInputStream(file);
-			files.add(DigestUtils.shaHex(is));
+			String digest = DigestUtils.shaHex(is);
+			files.add(digest);
+			System.err.println("[" + digest + "] " + file);
 		}
 		finally
 		{

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch4jConfig>
+  <dontWrapJar>false</dontWrapJar>
+  <headerType>console</headerType>
+  <jar>C:\git.twoducks\ossindex\ossindex-report-assistant\target\ossindex-report-assistant-0.0.1-SNAPSHOT-jar-with-dependencies.jar</jar>
+  <outfile>C:\Users\Gern Blanston\Documents\ossindex-report-assistant.exe</outfile>
+  <errTitle></errTitle>
+  <cmdLine></cmdLine>
+  <chdir>.</chdir>
+  <priority>normal</priority>
+  <downloadUrl>http://java.com/download</downloadUrl>
+  <supportUrl></supportUrl>
+  <stayAlive>false</stayAlive>
+  <manifest></manifest>
+  <icon></icon>
+  <jre>
+    <path>C:\Program Files\Java\jdk1.7.0_45\jre</path>
+    <bundledJre64Bit>true</bundledJre64Bit>
+    <minVersion>1.1.7</minVersion>
+    <maxVersion></maxVersion>
+    <jdkPreference>preferJre</jdkPreference>
+    <runtimeBits>64/32</runtimeBits>
+  </jre>
+</launch4jConfig>
