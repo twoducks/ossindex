@@ -55,49 +55,84 @@ public class ProjectConfig
 	private String project;
 	private String scm;
 	private String home;
-	private String cpe;
+	private Collection<String> cpes;
 	private List<String> licenses = new LinkedList<String>();
 	private List<String> files = new LinkedList<String>();
 	private String comment;
 	
+	/** Get the project name.
+	 * 
+	 * @return
+	 */
 	public String getName()
 	{
 		return name;
 	}
 	
+	/** Get the project version.
+	 * 
+	 * @return
+	 */
 	public String getVersion()
 	{
 		return version;
 	}
 	
+	/** Get a URL that identifies the project.
+	 * 
+	 * @return
+	 * @throws MalformedURLException
+	 */
 	public URL getProjectUrl() throws MalformedURLException
 	{
 		if(project == null) return null;
 		return new URL(project);
 	}
 	
+	/** Get the SCM URI that can be used to retrieve the source or build artifact.
+	 * 
+	 * @return
+	 * @throws URISyntaxException
+	 */
 	public URI getScmUri() throws URISyntaxException
 	{
 		if(scm == null) return null;
 		return new URI(scm);
 	}
 	
+	/** Get the homepage URL if it is different from the project URL.
+	 * 
+	 * @return
+	 * @throws MalformedURLException
+	 */
 	public URL getHomeUrl() throws MalformedURLException
 	{
 		if(home == null) return null;
 		return new URL(home);
 	}
 	
-	public String getCpe()
+	/** Get a list of all CPE matches against the project.
+	 * 
+	 * @return
+	 */
+	public Collection<String> getCpes()
 	{
-		return cpe;
+		return cpes;
 	}
 	
+	/** Get a list of all licenses identified for the project itself.
+	 * 
+	 * @return
+	 */
 	public Collection<String> getLicenses()
 	{
 		return licenses;
 	}
 	
+	/** Get a list of all file digests that were matched against the project.
+	 * 
+	 * @return
+	 */
 	public Collection<String> getFiles()
 	{
 		return files;

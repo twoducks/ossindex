@@ -44,6 +44,19 @@ public class FileConfig
 	private String license;
 	private String comment;
 	
+	/** 
+	 * Indicate whether or not this file was ignored for analysis purposes. This is
+	 * often done if the file is too small, since identifying a file origin in this
+	 * circumstance is much more error prone.
+	 */
+	@SuppressWarnings("unused")
+	private boolean ignored;
+
+	/**
+	 * 
+	 * @param file
+	 * @throws IOException
+	 */
 	public FileConfig(File file) throws IOException
 	{
 		// Get the SHA1 sum for a file, then check if the MD5 is listed in the
