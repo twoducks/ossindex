@@ -1,5 +1,5 @@
 /**
- *	Copyright (c) 2014-2015 TwoDucks Inc.
+ *	Copyright (c) 2015 TwoDucks Inc.
  *	All rights reserved.
  *	
  *	Redistribution and use in source and binary forms, with or without
@@ -26,65 +26,42 @@
  */
 package ca.twoducks.vor.ossindex.report;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import com.google.gson.ExclusionStrategy;
+import com.google.gson.FieldAttributes;
 
-/** Represent the configuration of an OSS Index report. This class can be exported
- * to and imported from a suitable JSON file. 
+/** This class is used to filter the GSON results to only include the publicly safe
+ * fields in the JSON output.
  * 
  * @author Ken Duck
  *
  */
-public class Configuration
+public class PublicExclusionStrategy implements ExclusionStrategy
 {
-	/**
-	 * Timestamp indicating when the configuration file was made/updated
+	/*
+	 * (non-Javadoc)
+	 * @see com.google.gson.ExclusionStrategy#shouldSkipClass(java.lang.Class)
 	 */
-	@SuppressWarnings("unused")
-	private Long timestamp;
-	
-	/**
-	 * List of classes representing individual files.
-	 */
-	private List<FileConfig> files = new LinkedList<FileConfig>();
-	
-	/**
-	 * Map of project identifier (names) to ProjectGroup. A ProjectGroup collects similar
-	 * projects together. For more information see the comment at the head of the ProjectGroup
-	 * class itself.
-	 */
-	@SuppressWarnings("unused")
-	private SortedMap<String, ProjectGroup> projects = new TreeMap<String, ProjectGroup>();
-
-	/**
-	 * Initialize the configuration and set the creation time stamp.
-	 */
-	public Configuration()
+	@Override
+	public boolean shouldSkipClass(Class<?> cls)
 	{
-		touch();
+		// TODO Auto-generated method stub
+		return false;
 	}
 
-	/** Add the SHA1 sum of a file to the file list.
-	 * 
-	 * @param file
-	 * @throws IOException 
+	/*
+	 * (non-Javadoc)
+	 * @see com.google.gson.ExclusionStrategy#shouldSkipField(com.google.gson.FieldAttributes)
 	 */
-	public void addFile(File file) throws IOException
+	@Override
+	public boolean shouldSkipField(FieldAttributes attr)
 	{
-		FileConfig config = new FileConfig(file);
-		files.add(config);
+		// Don't output sensitive file information
+		if(attr.getDeclaringClass() == FileConfig.class)
+		{
+			String name = attr.getName();
+			if("path".equals(name)) return true;
+		}
+		return false;
 	}
 
-	/**
-	 * Update the configuration's timestamp.
-	 */
-	public void touch()
-	{
-		timestamp = (new Date()).getTime();
-	}
 }

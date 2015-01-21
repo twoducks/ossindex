@@ -1,5 +1,5 @@
 /**
- *	Copyright (c) 2014-2015 TwoDucks Inc.
+ *	Copyright (c) 2015 TwoDucks Inc.
  *	All rights reserved.
  *	
  *	Redistribution and use in source and binary forms, with or without
@@ -26,65 +26,43 @@
  */
 package ca.twoducks.vor.ossindex.report;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.HashSet;
+import java.util.Set;
 
-/** Represent the configuration of an OSS Index report. This class can be exported
- * to and imported from a suitable JSON file. 
+/** Any single project may have several matched URIs (repositories). To explain, assume
+ * we have three repositories A, B, and C, where each subsequent repository is cloned from
+ * the previous.
+ * 
+ *    A -> B -> C
+ * 
+ * The report is configured against files that appear in project C, but project C only
+ * changed one file, whereas project B changed one or more *different* files, and some
+ * files in project A are unchanged by either B or C.
+ * 
+ * In this situation origin matching will provide projects A, B, and C as results.
+ * 
+ * It is important that we include all of these projects in the results, since vulnerabilities
+ * and other interesting information may have been added at any one of these levels. For
+ * this reason we provide a project GROUP which contains the projects. We treat them as
+ * one, but can also work with them separately.
+ * 
+ * For now we group by name, which is imprecise but often sufficient.
  * 
  * @author Ken Duck
  *
  */
-public class Configuration
+public class ProjectGroup
 {
 	/**
-	 * Timestamp indicating when the configuration file was made/updated
+	 * The name of the group
 	 */
 	@SuppressWarnings("unused")
-	private Long timestamp;
+	private String name;
 	
 	/**
-	 * List of classes representing individual files.
-	 */
-	private List<FileConfig> files = new LinkedList<FileConfig>();
-	
-	/**
-	 * Map of project identifier (names) to ProjectGroup. A ProjectGroup collects similar
-	 * projects together. For more information see the comment at the head of the ProjectGroup
-	 * class itself.
+	 * Collection of actual project configurations.
 	 */
 	@SuppressWarnings("unused")
-	private SortedMap<String, ProjectGroup> projects = new TreeMap<String, ProjectGroup>();
+	private Set<ProjectConfig> members = new HashSet<ProjectConfig>();
 
-	/**
-	 * Initialize the configuration and set the creation time stamp.
-	 */
-	public Configuration()
-	{
-		touch();
-	}
-
-	/** Add the SHA1 sum of a file to the file list.
-	 * 
-	 * @param file
-	 * @throws IOException 
-	 */
-	public void addFile(File file) throws IOException
-	{
-		FileConfig config = new FileConfig(file);
-		files.add(config);
-	}
-
-	/**
-	 * Update the configuration's timestamp.
-	 */
-	public void touch()
-	{
-		timestamp = (new Date()).getTime();
-	}
 }

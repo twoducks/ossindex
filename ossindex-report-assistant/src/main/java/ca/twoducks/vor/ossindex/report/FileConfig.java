@@ -1,5 +1,5 @@
 /**
- *	Copyright (c) 2014-2015 TwoDucks Inc.
+ *	Copyright (c) 2015 TwoDucks Inc.
  *	All rights reserved.
  *	
  *	Redistribution and use in source and binary forms, with or without
@@ -27,64 +27,80 @@
 package ca.twoducks.vor.ossindex.report;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
-/** Represent the configuration of an OSS Index report. This class can be exported
- * to and imported from a suitable JSON file. 
+import org.apache.commons.codec.digest.DigestUtils;
+
+/** Information for an individual file.
  * 
  * @author Ken Duck
  *
  */
-public class Configuration
+public class FileConfig
 {
-	/**
-	 * Timestamp indicating when the configuration file was made/updated
-	 */
-	@SuppressWarnings("unused")
-	private Long timestamp;
+	private String digest;
+	private String path;
+	private String license;
+	private String comment;
 	
-	/**
-	 * List of classes representing individual files.
-	 */
-	private List<FileConfig> files = new LinkedList<FileConfig>();
-	
-	/**
-	 * Map of project identifier (names) to ProjectGroup. A ProjectGroup collects similar
-	 * projects together. For more information see the comment at the head of the ProjectGroup
-	 * class itself.
-	 */
-	@SuppressWarnings("unused")
-	private SortedMap<String, ProjectGroup> projects = new TreeMap<String, ProjectGroup>();
-
-	/**
-	 * Initialize the configuration and set the creation time stamp.
-	 */
-	public Configuration()
+	public FileConfig(File file) throws IOException
 	{
-		touch();
+		// Get the SHA1 sum for a file, then check if the MD5 is listed in the
+		// OSS Index (indicating it is third party code).
+		FileInputStream is = null;
+		try
+		{
+			is = new FileInputStream(file);
+			digest = DigestUtils.shaHex(is);
+			path = file.getPath();
+			
+			// Progress information
+			System.err.println(file);
+		}
+		finally
+		{
+			if(is != null)
+			{
+				is.close();
+			}
+		}
 	}
-
-	/** Add the SHA1 sum of a file to the file list.
+	
+	/** SHA1 digest for the file. Note that this is a platform dependent value.
 	 * 
-	 * @param file
-	 * @throws IOException 
+	 * @return
 	 */
-	public void addFile(File file) throws IOException
+	public String getDigest()
 	{
-		FileConfig config = new FileConfig(file);
-		files.add(config);
+		return digest;
 	}
-
-	/**
-	 * Update the configuration's timestamp.
+	
+	/** Local path to the file.
+	 * 
+	 * @return
 	 */
-	public void touch()
+	public String getPath()
 	{
-		timestamp = (new Date()).getTime();
+		return path;
+	}
+	
+	/** Text name of a license found within the file itself, often in a header comment.
+	 * 
+	 * @return
+	 */
+	public String getLicense()
+	{
+		return license;
+	}
+	
+	/** The comment provides a location for user-formatted information
+	 * about the file.
+	 * 
+	 * @return
+	 */
+	public String getComment()
+	{
+		return comment;
 	}
 }

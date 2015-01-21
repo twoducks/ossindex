@@ -1,5 +1,5 @@
 /**
- *	Copyright (c) 2014-2015 TwoDucks Inc.
+ *	Copyright (c) 2015 TwoDucks Inc.
  *	All rights reserved.
  *	
  *	Redistribution and use in source and binary forms, with or without
@@ -26,65 +26,85 @@
  */
 package ca.twoducks.vor.ossindex.report;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Date;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
-/** Represent the configuration of an OSS Index report. This class can be exported
- * to and imported from a suitable JSON file. 
+/** This class contains information about a project itself, including:
+ *   o name
+ *   o version - version information if available
+ *   o project - URL of 'project' page
+ *   o scm - URI of source code repository
+ *   o home - URL of 'home' page
+ *   o cpe code
+ *   o project level license(s)
+ *   o identified files (digest pointer)
+ *   o comment for user-provided information
  * 
  * @author Ken Duck
  *
  */
-public class Configuration
+public class ProjectConfig
 {
-	/**
-	 * Timestamp indicating when the configuration file was made/updated
-	 */
-	@SuppressWarnings("unused")
-	private Long timestamp;
+	private String name;
+	private String version;
+	private String project;
+	private String scm;
+	private String home;
+	private String cpe;
+	private List<String> licenses = new LinkedList<String>();
+	private List<String> files = new LinkedList<String>();
+	private String comment;
 	
-	/**
-	 * List of classes representing individual files.
-	 */
-	private List<FileConfig> files = new LinkedList<FileConfig>();
+	public String getName()
+	{
+		return name;
+	}
 	
-	/**
-	 * Map of project identifier (names) to ProjectGroup. A ProjectGroup collects similar
-	 * projects together. For more information see the comment at the head of the ProjectGroup
-	 * class itself.
-	 */
-	@SuppressWarnings("unused")
-	private SortedMap<String, ProjectGroup> projects = new TreeMap<String, ProjectGroup>();
-
-	/**
-	 * Initialize the configuration and set the creation time stamp.
-	 */
-	public Configuration()
+	public String getVersion()
 	{
-		touch();
+		return version;
 	}
-
-	/** Add the SHA1 sum of a file to the file list.
-	 * 
-	 * @param file
-	 * @throws IOException 
-	 */
-	public void addFile(File file) throws IOException
+	
+	public URL getProjectUrl() throws MalformedURLException
 	{
-		FileConfig config = new FileConfig(file);
-		files.add(config);
+		if(project == null) return null;
+		return new URL(project);
 	}
-
-	/**
-	 * Update the configuration's timestamp.
-	 */
-	public void touch()
+	
+	public URI getScmUri() throws URISyntaxException
 	{
-		timestamp = (new Date()).getTime();
+		if(scm == null) return null;
+		return new URI(scm);
+	}
+	
+	public URL getHomeUrl() throws MalformedURLException
+	{
+		if(home == null) return null;
+		return new URL(home);
+	}
+	
+	public String getCpe()
+	{
+		return cpe;
+	}
+	
+	public Collection<String> getLicenses()
+	{
+		return licenses;
+	}
+	
+	public Collection<String> getFiles()
+	{
+		return files;
+	}
+	
+	public String getComment()
+	{
+		return comment;
 	}
 }
