@@ -62,4 +62,4 @@ This will product two output files:
 Licensing
 ---------
 
-All source code is licensed under the [BSD 3-clause license](http://opensource.org/licenses/BSD-3-Clause).
+All source code in this repository is licensed under the [BSD 3-clause license](http://opensource.org/licenses/BSD-3-Clause).
