@@ -29,8 +29,10 @@ package ca.twoducks.vor.ossindex.report;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -58,7 +60,6 @@ public class Configuration
 	 * projects together. For more information see the comment at the head of the ProjectGroup
 	 * class itself.
 	 */
-	@SuppressWarnings("unused")
 	private SortedMap<String, ProjectGroup> projects = new TreeMap<String, ProjectGroup>();
 
 	/**
@@ -86,5 +87,48 @@ public class Configuration
 	public void touch()
 	{
 		timestamp = (new Date()).getTime();
+	}
+
+	/** Merge configuration information from the provided configuration here.
+	 * 
+	 * @param config
+	 */
+	public void merge(Configuration config)
+	{
+		// Build a lookup
+		Map<String,FileConfig> lookup = new HashMap<String,FileConfig>();
+		for(FileConfig file: files)
+		{
+			lookup.put(file.getDigest(), file);
+		}
+		
+		// Merge the foreign files
+		for(FileConfig file: config.files)
+		{
+			String digest = file.getDigest();
+			if(lookup.containsKey(digest))
+			{
+				lookup.get(digest).merge(file);
+			}
+			else
+			{
+				files.add(file);
+			}
+		}
+
+		if(projects != null && !projects.isEmpty())
+		{
+			if(config.projects != null && !config.projects.isEmpty())
+			{
+				System.err.println("Projects merge not supported. Keeping public version.");
+			}
+		}
+		else
+		{
+			if(config.projects != null && !config.projects.isEmpty())
+			{
+				projects = config.projects;
+			}
+		}
 	}
 }

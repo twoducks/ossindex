@@ -27,9 +27,12 @@
 package ca.twoducks.vor.ossindex.report;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
 
@@ -173,6 +176,38 @@ public class Assistant
 		}
 	}
 	
+	/** Merge the two given configuration files.
+	 * 
+	 * @param f1
+	 * @param f2
+	 * @throws IOException
+	 */
+	private void merge(File f1, File f2) throws IOException
+	{
+		config = load(f1);
+		Configuration c2 = load(f2);
+		config.merge(c2);
+	}
+
+	/** Load a configuration from a specified JSON file.
+	 * 
+	 * @param file
+	 * @return
+	 * @throws IOException
+	 */
+	private Configuration load(File file) throws IOException
+	{
+		Reader reader = new FileReader(file);
+		Gson gson = new GsonBuilder().create();
+		try
+		{
+			return gson.fromJson(reader, Configuration.class);
+		}
+		finally
+		{
+			reader.close();
+		}
+	}
 
 	/** Create the initial configuration files by scanning a directory.
 	 * 
@@ -199,10 +234,20 @@ public class Assistant
 	 * 
 	 * @param inputs
 	 * @param output
+	 * @throws FileNotFoundException 
 	 */
-	private static void doMerge(String[] inputs, File outputDir)
+	private static void doMerge(String[] inputs, File outputDir) throws IOException
 	{
-		System.err.println("This option is not yet supported");
+		File f1 = new File(inputs[0]);
+		File f2 = new File(inputs[1]);
+		
+		if(!f1.exists() || !f1.isFile()) throw new FileNotFoundException("Missing file: " + f1);
+		if(!f2.exists() || !f2.isFile()) throw new FileNotFoundException("Missing file: " + f2);
+		
+		
+		Assistant assistant = new Assistant();
+		assistant.merge(f1, f2);
+		assistant.exportJson(outputDir);
 	}
 
 	/** Get the command line options for parsing.
@@ -216,7 +261,7 @@ public class Assistant
 
 		options.addOption(new Option( "help", "print this message" ));
 		options.addOption(OptionBuilder.withArgName("dir").hasArg().withDescription("directory to scan in order to create new configuration files").create("scan"));
-		options.addOption(OptionBuilder.hasArgs(2).withDescription("configuration files to merge together").create("merge"));
+		options.addOption(OptionBuilder.withArgName("public private").hasArgs(2).withDescription("configuration files to merge together").create("merge"));
 
 		options.addOption(OptionBuilder.withArgName("dir").hasArg().withDescription("output directory").create("D"));
 		

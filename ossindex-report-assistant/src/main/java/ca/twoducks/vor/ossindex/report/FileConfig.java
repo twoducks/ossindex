@@ -116,4 +116,41 @@ public class FileConfig
 	{
 		return comment;
 	}
+	
+	/** Merge the data from the given file into the fields that are not currently
+	 * filled by anything else.
+	 * 
+	 * @param file
+	 */
+	public void merge(FileConfig file)
+	{
+		if(path == null) path = file.path;
+		if(license == null) license = file.license;
+		if(comment == null) comment = file.comment;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object o)
+	{
+		if(o instanceof FileConfig)
+		{
+			return ((FileConfig)o).digest.equals(digest);
+		}
+		return false;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode()
+	{
+		return digest.hashCode();
+	}
+
 }
