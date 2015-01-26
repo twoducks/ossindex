@@ -165,7 +165,15 @@ public class ProjectConfig
 				FileConfig file = lookup.get(digest);
 				List<Object> row = new ArrayList<Object>();
 				
-				row.add(file.getPath());
+				String path = file.getPath();
+				if(path != null && !path.isEmpty())
+				{
+					row.add(path);
+				}
+				else
+				{
+					row.add(file.getName());
+				}
 				
 				row.add(name);
 				if(home != null) row.add(home);

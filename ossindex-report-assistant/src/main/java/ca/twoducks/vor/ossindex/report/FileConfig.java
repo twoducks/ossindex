@@ -39,6 +39,7 @@ import org.apache.commons.codec.digest.DigestUtils;
  */
 public class FileConfig
 {
+	private String name;
 	private String digest;
 	private String path;
 	private String license;
@@ -89,6 +90,15 @@ public class FileConfig
 		return digest;
 	}
 	
+	/** Best known name for the file
+	 * 
+	 * @return
+	 */
+	public String getName()
+	{
+		return name;
+	}
+	
 	/** Local path to the file.
 	 * 
 	 * @return
@@ -124,9 +134,17 @@ public class FileConfig
 	 */
 	public void merge(FileConfig file)
 	{
+		if(name == null) name = file.name;
 		if(path == null) path = file.path;
 		if(license == null) license = file.license;
 		if(comment == null) comment = file.comment;
+		
+		// Use the path to get an optimal name
+		if(path != null)
+		{
+			File f = new File(path);
+			name = f.getName();
+		}
 	}
 
 	/*
@@ -152,5 +170,4 @@ public class FileConfig
 	{
 		return digest.hashCode();
 	}
-
 }
