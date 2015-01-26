@@ -26,8 +26,12 @@
  */
 package ca.twoducks.vor.ossindex.report;
 
+import java.io.IOException;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+
+import org.apache.commons.csv.CSVPrinter;
 
 /** Any single project may have several matched URIs (repositories). To explain, assume
  * we have three repositories A, B, and C, where each subsequent repository is cloned from
@@ -62,7 +66,20 @@ public class ProjectGroup
 	/**
 	 * Collection of actual project configurations.
 	 */
-	@SuppressWarnings("unused")
 	private Set<ProjectConfig> members = new HashSet<ProjectConfig>();
+
+	/** Export CSV configuration information.
+	 * 
+	 * @param csvOut
+	 * @param lookup File lookup information
+	 * @throws IOException 
+	 */
+	public void exportCsv(CSVPrinter csvOut, Map<String, FileConfig> lookup) throws IOException
+	{
+		for(ProjectConfig project: members)
+		{
+			project.exportCsv(csvOut, lookup);
+		}
+	}
 
 }

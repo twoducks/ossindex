@@ -26,13 +26,18 @@
  */
 package ca.twoducks.vor.ossindex.report;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.csv.CSVPrinter;
 
 /** This class contains information about a project itself, including:
  *   o name
@@ -141,5 +146,44 @@ public class ProjectConfig
 	public String getComment()
 	{
 		return comment;
+	}
+
+	/** Export CSV configuration information.
+	 * 
+	 * @param csvOut
+	 * @param lookup File lookup information
+	 * @throws IOException 
+	 */
+	public void exportCsv(CSVPrinter csvOut, Map<String, FileConfig> lookup) throws IOException
+	{
+		csvOut.printRecord();
+		csvOut.printComment("PROJECT: " + name);
+		for(String digest: files)
+		{
+			if(lookup.containsKey(digest))
+			{
+				FileConfig file = lookup.get(digest);
+				List<Object> row = new ArrayList<Object>();
+				
+				row.add(file.getPath());
+				
+				row.add(name);
+				if(home != null) row.add(home);
+				if(project != null) row.add(project);
+				else row.add(scm);
+				row.add(licenses);
+				
+				row.add(file.getLicense());
+				row.add(digest);
+				row.add(file.getComment());
+				
+				csvOut.printRecord(row);
+			}
+			else
+			{
+				System.err.println("Unmatched digest found in project: " + digest);
+			}
+			
+		}
 	}
 }

@@ -44,6 +44,8 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -208,6 +210,34 @@ public class Assistant
 			reader.close();
 		}
 	}
+	
+	/** Export the configuration data into a CSV file. The CSV file may not
+	 * contain complete information, but is much easier for a human to work with.
+	 * Code will be added to allow conversion from CSV back into the JSON format.
+	 * 
+	 * @param dir
+	 * @throws IOException 
+	 */
+	private void exportCsv(File dir) throws IOException
+	{
+		File file = new File(dir, "ossindex.csv");
+		CSVFormat format = CSVFormat.DEFAULT.withRecordSeparator("\n").withCommentMarker('#');
+		FileWriter fout = new FileWriter(file);
+		CSVPrinter csvOut = new CSVPrinter(fout, format);
+		String[] header = {"Path", "project name", "project URI", "project licenses", "file license", "digest", "comment"};
+		csvOut.printRecord((Object[])header);
+		
+		try
+		{
+			config.exportCsv(csvOut);
+		}
+		finally
+		{
+			fout.close();
+			csvOut.close();
+		}
+		
+	}
 
 	/** Create the initial configuration files by scanning a directory.
 	 * 
@@ -227,6 +257,7 @@ public class Assistant
 		Assistant assistant = new Assistant();
 		assistant.scan(scanDir);
 		assistant.exportJson(outputDir);
+		assistant.exportCsv(outputDir);
 	}
 
 	/** Merge the specified JSON files together, write a new public/private file
@@ -248,6 +279,7 @@ public class Assistant
 		Assistant assistant = new Assistant();
 		assistant.merge(f1, f2);
 		assistant.exportJson(outputDir);
+		assistant.exportCsv(outputDir);
 	}
 
 	/** Get the command line options for parsing.

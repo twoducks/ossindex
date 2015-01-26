@@ -36,6 +36,8 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import org.apache.commons.csv.CSVPrinter;
+
 /** Represent the configuration of an OSS Index report. This class can be exported
  * to and imported from a suitable JSON file. 
  * 
@@ -95,7 +97,7 @@ public class Configuration
 	 */
 	public void merge(Configuration config)
 	{
-		// Build a lookup
+		// Build a file lookup
 		Map<String,FileConfig> lookup = new HashMap<String,FileConfig>();
 		for(FileConfig file: files)
 		{
@@ -129,6 +131,27 @@ public class Configuration
 			{
 				projects = config.projects;
 			}
+		}
+	}
+
+	/** Export CSV configuration information.
+	 * 
+	 * @param csvOut
+	 * @throws IOException 
+	 */
+	public void exportCsv(CSVPrinter csvOut) throws IOException
+	{
+		// Build a file lookup
+		Map<String,FileConfig> lookup = new HashMap<String,FileConfig>();
+		for(FileConfig file: files)
+		{
+			lookup.put(file.getDigest(), file);
+		}
+		
+		for(Map.Entry<String, ProjectGroup> entry: projects.entrySet())
+		{
+			ProjectGroup group = entry.getValue();
+			group.exportCsv(csvOut, lookup);
 		}
 	}
 }
