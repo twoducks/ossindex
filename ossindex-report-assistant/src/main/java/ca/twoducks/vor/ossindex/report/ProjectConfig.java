@@ -175,6 +175,7 @@ public class ProjectConfig
 					row.add(file.getName());
 				}
 				
+				row.add(file.getState());
 				row.add(name);
 				if(home != null) row.add(home);
 				if(project != null) row.add(project);

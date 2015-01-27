@@ -44,7 +44,8 @@ public class FileConfig
 	private String path;
 	private String license;
 	private String comment;
-	
+	private String state;
+
 	/** 
 	 * Indicate whether or not this file was ignored for analysis purposes. This is
 	 * often done if the file is too small, since identifying a file origin in this
@@ -138,6 +139,7 @@ public class FileConfig
 		if(path == null) path = file.path;
 		if(license == null) license = file.license;
 		if(comment == null) comment = file.comment;
+		if(state == null) state = file.state;
 		
 		// Use the path to get an optimal name
 		if(path != null)
@@ -145,6 +147,15 @@ public class FileConfig
 			File f = new File(path);
 			name = f.getName();
 		}
+	}
+	
+	/** Get the analysis state of the file.
+	 * 
+	 * @return
+	 */
+	public String getState()
+	{
+		return state;
 	}
 
 	/*
