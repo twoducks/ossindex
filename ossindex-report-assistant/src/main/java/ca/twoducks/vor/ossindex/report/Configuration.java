@@ -93,24 +93,28 @@ public class Configuration
 
 	/** Merge configuration information from the provided configuration here.
 	 * 
+	 * "This" configuration should be the private configuration, whereas the
+	 * argument should be the public configuration.
+	 * 
 	 * @param config
 	 */
 	public void merge(Configuration config)
 	{
 		// Build a file lookup
 		Map<String,FileConfig> lookup = new HashMap<String,FileConfig>();
-		for(FileConfig file: files)
+		for(FileConfig file: config.files)
 		{
 			lookup.put(file.getDigest(), file);
 		}
 		
 		// Merge the foreign files
-		for(FileConfig file: config.files)
+		for(FileConfig file: files)
 		{
 			String digest = file.getDigest();
+			
 			if(lookup.containsKey(digest))
 			{
-				lookup.get(digest).merge(file);
+				file.merge(lookup.get(digest));
 			}
 			else
 			{

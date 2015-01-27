@@ -180,15 +180,19 @@ public class Assistant
 	
 	/** Merge the two given configuration files.
 	 * 
+	 * We merge the public into the private file, since the private file will contain
+	 * files differentiated by path (which means the same file in multiple locations)
+	 * whereas the public file has no such distinction.
+	 * 
 	 * @param f1
 	 * @param f2
 	 * @throws IOException
 	 */
-	private void merge(File f1, File f2) throws IOException
+	private void merge(File publicFile, File privateFile) throws IOException
 	{
-		config = load(f1);
-		Configuration c2 = load(f2);
-		config.merge(c2);
+		config = load(privateFile);
+		Configuration c1 = load(publicFile);
+		config.merge(c1);
 	}
 
 	/** Load a configuration from a specified JSON file.
