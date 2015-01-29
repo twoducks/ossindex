@@ -56,6 +56,7 @@ import org.apache.commons.csv.CSVPrinter;
 public class ProjectConfig
 {
 	private String name;
+	private String description;
 	private String version;
 	private String project;
 	private String scm;
@@ -156,8 +157,6 @@ public class ProjectConfig
 	 */
 	public void exportCsv(CSVPrinter csvOut, Map<String, FileConfig> lookup) throws IOException
 	{
-		csvOut.printRecord();
-		csvOut.printComment("PROJECT: " + name);
 		for(String digest: files)
 		{
 			if(lookup.containsKey(digest))
@@ -180,9 +179,12 @@ public class ProjectConfig
 				if(home != null) row.add(home);
 				if(project != null) row.add(project);
 				else row.add(scm);
+				row.add(version);
+				row.add(cpes);
 				row.add(licenses);
-				
+
 				row.add(file.getLicense());
+				row.add(description);
 				row.add(digest);
 				row.add(file.getComment());
 				

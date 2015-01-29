@@ -228,7 +228,7 @@ public class Assistant
 		CSVFormat format = CSVFormat.DEFAULT.withRecordSeparator("\n").withCommentMarker('#');
 		FileWriter fout = new FileWriter(file);
 		CSVPrinter csvOut = new CSVPrinter(fout, format);
-		String[] header = {"Path", "State", "Project Name", "Project URI", "Project Licenses", "File License", "Digest", "Comment"};
+		String[] header = {"Path", "State", "Project Name", "Project URI", "Version", "CPEs", "Project Licenses", "File License", "Project Description", "Digest", "Comment"};
 		csvOut.printRecord((Object[])header);
 		
 		try
