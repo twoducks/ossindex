@@ -33,6 +33,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -65,7 +66,7 @@ public class ProjectConfig
 	private List<String> licenses = new LinkedList<String>();
 	private List<String> files = new LinkedList<String>();
 	private String comment;
-	
+
 	/** Get the project name.
 	 * 
 	 * @return
@@ -74,7 +75,7 @@ public class ProjectConfig
 	{
 		return name;
 	}
-	
+
 	/** Get the project version.
 	 * 
 	 * @return
@@ -83,7 +84,7 @@ public class ProjectConfig
 	{
 		return version;
 	}
-	
+
 	/** Get a URL that identifies the project.
 	 * 
 	 * @return
@@ -94,7 +95,7 @@ public class ProjectConfig
 		if(project == null) return null;
 		return new URL(project);
 	}
-	
+
 	/** Get the SCM URI that can be used to retrieve the source or build artifact.
 	 * 
 	 * @return
@@ -105,7 +106,7 @@ public class ProjectConfig
 		if(scm == null) return null;
 		return new URI(scm);
 	}
-	
+
 	/** Get the homepage URL if it is different from the project URL.
 	 * 
 	 * @return
@@ -116,16 +117,26 @@ public class ProjectConfig
 		if(home == null) return null;
 		return new URL(home);
 	}
-	
+
 	/** Get a list of all CPE matches against the project.
 	 * 
 	 * @return
 	 */
 	public Collection<String> getCpes()
 	{
+		if(cpes != null)
+		{
+			Iterator<String> it = cpes.iterator();
+			while(it.hasNext())
+			{
+				String cpe = it.next();
+				if("cpe:/none".equals(cpe)) it.remove();
+			}
+			if(cpes.isEmpty()) cpes = null;
+		}
 		return cpes;
 	}
-	
+
 	/** Get a list of all licenses identified for the project itself.
 	 * 
 	 * @return
@@ -134,7 +145,7 @@ public class ProjectConfig
 	{
 		return licenses;
 	}
-	
+
 	/** Get a list of all file digests that were matched against the project.
 	 * 
 	 * @return
@@ -143,7 +154,7 @@ public class ProjectConfig
 	{
 		return files;
 	}
-	
+
 	public String getComment()
 	{
 		return comment;
@@ -163,7 +174,7 @@ public class ProjectConfig
 			{
 				FileConfig file = lookup.get(digest);
 				List<Object> row = new ArrayList<Object>();
-				
+
 				String path = file.getPath();
 				if(path != null && !path.isEmpty())
 				{
@@ -173,28 +184,28 @@ public class ProjectConfig
 				{
 					row.add(file.getName());
 				}
-				
+
 				row.add(file.getState());
 				row.add(name);
 				if(home != null) row.add(home);
 				if(project != null) row.add(project);
 				else row.add(scm);
 				row.add(version);
-				row.add(cpes);
+				row.add(getCpes());
 				row.add(licenses);
 
 				row.add(file.getLicense());
 				row.add(description);
 				row.add(digest);
 				row.add(file.getComment());
-				
+
 				csvOut.printRecord(row);
 			}
 			else
 			{
 				System.err.println("Unmatched digest found in project: " + digest);
 			}
-			
+
 		}
 	}
 }

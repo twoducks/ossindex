@@ -118,9 +118,12 @@ public class Configuration
 			}
 			else
 			{
-				files.add(file);
+				lookup.put(file.getDigest(), file);
 			}
 		}
+		
+		files = new LinkedList<FileConfig>();
+		files.addAll(lookup.values());
 
 		if(projects != null && !projects.isEmpty())
 		{
@@ -147,9 +150,19 @@ public class Configuration
 	{
 		// Build a file lookup
 		Map<String,FileConfig> lookup = new HashMap<String,FileConfig>();
+		int i = 0;
 		for(FileConfig file: files)
 		{
-			lookup.put(file.getDigest(), file);
+			i++;
+			String digest = file.getDigest();
+			if(!lookup.containsKey(digest))
+			{
+				lookup.put(file.getDigest(), file);
+			}
+			else
+			{
+				System.err.println("Duplicate digest: " + digest);
+			}
 		}
 		
 		for(Map.Entry<String, ProjectGroup> entry: projects.entrySet())
