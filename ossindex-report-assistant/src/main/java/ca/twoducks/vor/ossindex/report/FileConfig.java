@@ -51,7 +51,6 @@ public class FileConfig
 	 * often done if the file is too small, since identifying a file origin in this
 	 * circumstance is much more error prone.
 	 */
-	@SuppressWarnings("unused")
 	private boolean ignored;
 
 	/**
@@ -140,6 +139,7 @@ public class FileConfig
 		if(license == null) license = file.license;
 		if(comment == null) comment = file.comment;
 		if(state == null) state = file.state;
+		if(file.ignored == true) ignored = true;
 		
 		// Use the path to get an optimal name
 		if(path != null)
@@ -180,5 +180,14 @@ public class FileConfig
 	public int hashCode()
 	{
 		return digest.hashCode();
+	}
+
+	/** Returns true if the file was ignored for project identification purposes.
+	 * 
+	 * @return
+	 */
+	public boolean isIgnored()
+	{
+		return ignored;
 	}
 }

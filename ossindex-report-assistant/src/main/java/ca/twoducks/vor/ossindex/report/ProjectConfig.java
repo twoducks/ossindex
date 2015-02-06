@@ -187,9 +187,17 @@ public class ProjectConfig
 
 				row.add(file.getState());
 				row.add(name);
-				if(home != null) row.add(home);
-				if(project != null) row.add(project);
-				else row.add(scm);
+				List<String> urls = new LinkedList<String>();
+				if(home != null) urls.add(home);
+				if(project != null) urls.add(project);
+				if(scm != null)
+				{
+					if(project == null || !scm.toString().startsWith(project.toString()))
+					{
+						urls.add(scm);
+					}
+				}
+				row.add(urls);
 				row.add(version);
 				row.add(getCpes());
 				row.add(licenses);

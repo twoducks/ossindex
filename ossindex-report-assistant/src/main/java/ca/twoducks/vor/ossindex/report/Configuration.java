@@ -28,6 +28,7 @@ package ca.twoducks.vor.ossindex.report;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -100,36 +101,35 @@ public class Configuration
 	 */
 	public void merge(Configuration config)
 	{
-		// Build a file lookup
-		Map<String,FileConfig> lookup = new HashMap<String,FileConfig>();
+		// Build a file lookup of public files
+		Map<String,FileConfig> publicLookup = new HashMap<String,FileConfig>();
 		for(FileConfig file: config.files)
 		{
-			lookup.put(file.getDigest(), file);
+			publicLookup.put(file.getDigest(), file);
 		}
 		
-		// Merge the foreign files
+		// Loop through private files, merging data from public when available
+		Map<String,FileConfig> privateLookup = new HashMap<String,FileConfig>();
 		for(FileConfig file: files)
 		{
 			String digest = file.getDigest();
 			
-			if(lookup.containsKey(digest))
+			if(publicLookup.containsKey(digest))
 			{
-				file.merge(lookup.get(digest));
+				file.merge(publicLookup.get(digest));
 			}
-			else
-			{
-				lookup.put(file.getDigest(), file);
-			}
+			privateLookup.put(file.getDigest(), file);
 		}
 		
+		// Assign new file collection to configuration
 		files = new LinkedList<FileConfig>();
-		files.addAll(lookup.values());
+		files.addAll(privateLookup.values());
 
 		if(projects != null && !projects.isEmpty())
 		{
 			if(config.projects != null && !config.projects.isEmpty())
 			{
-				System.err.println("Projects merge not supported. Keeping public version.");
+				System.err.println("Projects merge not supported. Keeping private version.");
 			}
 		}
 		else
@@ -150,10 +150,8 @@ public class Configuration
 	{
 		// Build a file lookup
 		Map<String,FileConfig> lookup = new HashMap<String,FileConfig>();
-		int i = 0;
 		for(FileConfig file: files)
 		{
-			i++;
 			String digest = file.getDigest();
 			if(!lookup.containsKey(digest))
 			{
@@ -169,6 +167,37 @@ public class Configuration
 		{
 			ProjectGroup group = entry.getValue();
 			group.exportCsv(csvOut, lookup);
+		}
+		
+		
+		for(FileConfig file: files)
+		{
+			if(file.isIgnored())
+			{
+				List<Object> row = new ArrayList<Object>();
+				String path = file.getPath();
+				if(path != null && !path.isEmpty())
+				{
+					row.add(path);
+				}
+				else
+				{
+					row.add(file.getName());
+				}
+
+				row.add("UNASSIGNED");
+				row.add(""); // project name
+				row.add(""); // project url
+				row.add(""); // project version
+				row.add(""); // project cpe
+				row.add("File below 200 byte minimum"); // project description
+				row.add(file.getDigest());
+				row.add(file.getComment());
+
+				csvOut.printRecord(row);
+
+
+			}
 		}
 	}
 }

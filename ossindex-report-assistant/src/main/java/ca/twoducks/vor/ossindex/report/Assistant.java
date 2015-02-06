@@ -191,8 +191,11 @@ public class Assistant
 	private void merge(File publicFile, File privateFile) throws IOException
 	{
 		config = load(privateFile);
-		Configuration c1 = load(publicFile);
-		config.merge(c1);
+		if(publicFile != null)
+		{
+			Configuration c1 = load(publicFile);
+			config.merge(c1);
+		}
 	}
 
 	/** Load a configuration from a specified JSON file.
@@ -264,6 +267,27 @@ public class Assistant
 		assistant.exportCsv(outputDir);
 	}
 
+	/** Import a JSON file and output a pretty-printed file along with the CSV file.
+	 * 
+	 * @param importFile
+	 * @param outputDir
+	 * @throws IOException
+	 */
+	private static void doImport(String importFile, File outputDir) throws IOException
+	{
+		File file = new File(importFile);
+		if(!file.exists())
+		{
+			System.err.println("Cannot find " + file);
+			return;
+		}
+
+		Assistant assistant = new Assistant();
+		assistant.merge(null, file);
+		assistant.exportJson(outputDir);
+		assistant.exportCsv(outputDir);
+	}
+
 	/** Merge the specified JSON files together, write a new public/private file
 	 * in the output directory.
 	 * 
@@ -298,6 +322,7 @@ public class Assistant
 		options.addOption(new Option( "help", "print this message" ));
 		options.addOption(OptionBuilder.withArgName("dir").hasArg().withDescription("directory to scan in order to create new configuration files").create("scan"));
 		options.addOption(OptionBuilder.withArgName("public private").hasArgs(2).withDescription("configuration files to merge together").create("merge"));
+		options.addOption(OptionBuilder.withArgName("public").hasArgs(2).withDescription("import a JSON file and export a formatted JSON with a CSV file").create("import"));
 
 		options.addOption(OptionBuilder.withArgName("dir").hasArg().withDescription("output directory").create("D"));
 		
@@ -326,9 +351,14 @@ public class Assistant
 			// Determine operation type
 			boolean doScan = line.hasOption("scan");
 			boolean doMerge = line.hasOption("merge");
-			if(doScan && doMerge)
+			boolean doImport = line.hasOption("import");
+			int count = 0;
+			if(doScan) count++;
+			if(doMerge) count++;
+			if(doImport) count++;
+			if(count > 1)
 			{
-				System.err.println( "Only one of 'scan' or 'merge' may be selected");
+				System.err.println( "Only one of 'scan', 'merge', or import may be selected");
 				return;
 			}
 
@@ -369,6 +399,26 @@ public class Assistant
 				}
 				
 				doMerge(line.getOptionValues("merge"), outputDir);
+				return;
+			}
+			
+			if(doImport)
+			{
+				// Get the output directory
+				if(!line.hasOption("D"))
+				{
+					System.err.println( "An output directory must be specified");
+					return;
+				}
+				File outputDir = new File(line.getOptionValue("D"));
+				if(!outputDir.exists()) outputDir.mkdir();
+				if(!outputDir.isDirectory())
+				{
+					System.err.println("Output option is not a directory: " + outputDir);
+					return;
+				}
+				
+				doImport(line.getOptionValue("import"), outputDir);
 				return;
 			}
 		}
