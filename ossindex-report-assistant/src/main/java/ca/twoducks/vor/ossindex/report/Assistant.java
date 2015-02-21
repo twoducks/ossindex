@@ -35,6 +35,8 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
@@ -46,6 +48,8 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+
+import ca.twoducks.vor.ossindex.report.plugins.ChecksumPlugin;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -80,6 +84,11 @@ public class Assistant
 	 * 
 	 */
 	Configuration config = new Configuration();
+	
+	/**
+	 * List of scan plugins.
+	 */
+	private Set<IScanPlugin> plugins = new HashSet<IScanPlugin>();
 
 	/**
 	 * Initialize the host connection.
@@ -106,13 +115,9 @@ public class Assistant
 	{
 		if(file.isFile())
 		{
-			try
+			for(IScanPlugin plugin: plugins)
 			{
-				config.addFile(file);
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
+				plugin.run(file);
 			}
 		}
 		else
@@ -245,6 +250,25 @@ public class Assistant
 		}
 		
 	}
+	
+	/** Add a scan plugin
+	 * 
+	 * @param class1
+	 */
+	private void addScanPlugin(Class<ChecksumPlugin> cls)
+	{
+		try
+		{
+			ChecksumPlugin plugin = cls.newInstance();
+			plugin.setConfiguration(config);
+			plugins.add(plugin);
+		}
+		catch (InstantiationException | IllegalAccessException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
 
 	/** Create the initial configuration files by scanning a directory.
 	 * 
@@ -252,7 +276,7 @@ public class Assistant
 	 * @param outputDir
 	 * @throws IOException
 	 */
-	private static void doScan(String scan, File outputDir) throws IOException
+	private static void doScan(Assistant assistant, String scan, File outputDir) throws IOException
 	{
 		File scanDir = new File(scan);
 		if(!scanDir.exists())
@@ -261,7 +285,6 @@ public class Assistant
 			return;
 		}
 
-		Assistant assistant = new Assistant();
 		assistant.scan(scanDir);
 		assistant.exportJson(outputDir);
 		assistant.exportCsv(outputDir);
@@ -273,7 +296,7 @@ public class Assistant
 	 * @param outputDir
 	 * @throws IOException
 	 */
-	private static void doImport(String importFile, File outputDir) throws IOException
+	private static void doImport(Assistant assistant, String importFile, File outputDir) throws IOException
 	{
 		File file = new File(importFile);
 		if(!file.exists())
@@ -282,7 +305,6 @@ public class Assistant
 			return;
 		}
 
-		Assistant assistant = new Assistant();
 		assistant.merge(null, file);
 		assistant.exportJson(outputDir);
 		assistant.exportCsv(outputDir);
@@ -295,7 +317,7 @@ public class Assistant
 	 * @param output
 	 * @throws FileNotFoundException 
 	 */
-	private static void doMerge(String[] inputs, File outputDir) throws IOException
+	private static void doMerge(Assistant assistant, String[] inputs, File outputDir) throws IOException
 	{
 		File f1 = new File(inputs[0]);
 		File f2 = new File(inputs[1]);
@@ -304,7 +326,6 @@ public class Assistant
 		if(!f2.exists() || !f2.isFile()) throw new FileNotFoundException("Missing file: " + f2);
 		
 		
-		Assistant assistant = new Assistant();
 		assistant.merge(f1, f2);
 		assistant.exportJson(outputDir);
 		assistant.exportCsv(outputDir);
@@ -347,6 +368,12 @@ public class Assistant
 				formatter.printHelp("assistant", getOptions());
 				return;
 			}
+			
+			// Instantiate assistant
+			Assistant assistant = new Assistant();
+			
+			// Add default plugins
+			assistant.addScanPlugin(ChecksumPlugin.class);
 
 			// Determine operation type
 			boolean doScan = line.hasOption("scan");
@@ -378,7 +405,7 @@ public class Assistant
 					return;
 				}
 
-				doScan(line.getOptionValue("scan"), outputDir);
+				doScan(assistant, line.getOptionValue("scan"), outputDir);
 				return;
 			}
 
@@ -398,7 +425,7 @@ public class Assistant
 					return;
 				}
 				
-				doMerge(line.getOptionValues("merge"), outputDir);
+				doMerge(assistant, line.getOptionValues("merge"), outputDir);
 				return;
 			}
 			
@@ -418,7 +445,7 @@ public class Assistant
 					return;
 				}
 				
-				doImport(line.getOptionValue("import"), outputDir);
+				doImport(assistant, line.getOptionValue("import"), outputDir);
 				return;
 			}
 		}
@@ -431,4 +458,5 @@ public class Assistant
 		formatter.printHelp("assistant", getOptions());
 		return;
 	}
+
 }
