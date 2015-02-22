@@ -22,6 +22,6 @@
   , "two" : "2.x"
   , "thr" : "3.3.x"
   , "lat" : "latest"
-  , "dyl" : "file:../dyl"
+  , "dyl" : "file:../samples/package.json"
   }
 }

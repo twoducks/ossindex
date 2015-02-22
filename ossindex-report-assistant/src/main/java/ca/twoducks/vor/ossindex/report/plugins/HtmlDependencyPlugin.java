@@ -68,6 +68,7 @@ public class HtmlDependencyPlugin extends AbstractScanPlugin implements IScanPlu
 	static
 	{
 		supportedFileTypes.add("html");
+		supportedFileTypes.add("htm");
 		supportedFileTypes.add("jsp");
 	}
 	@Override
