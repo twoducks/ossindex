@@ -28,6 +28,8 @@ package ca.twoducks.vor.ossindex.report;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
@@ -217,14 +219,77 @@ public class Configuration
 	 * may be an HTML file, and the dependency to a JavaScript or CSS file.
 	 * 
 	 * @param file
+	 * @param type Type of dependency (HTML, Maven, Node, Ruby, Java, etc.)
 	 * @param url
 	 */
-	public void addDependency(File file, URL url)
+	public void addDependency(File file, String type, URL url)
+	{
+		try
+		{
+			addDependency(file, type, url.toURI(), null);
+		}
+		catch (URISyntaxException e)
+		{
+			System.err.println("Exception handling URL: " + url);
+		}
+	}
+
+	/**
+	 * 
+	 * @param file
+	 * @param type Type of dependency (HTML, Maven, Node, Ruby, Java, etc.)
+	 * @param uri
+	 * @param comment Comment to add with dependency
+	 */
+	public void addDependency(File file, String type, URI uri, String comment)
 	{
 		if(fileLookup.containsKey(file))
 		{
 			FileConfig fconf = fileLookup.get(file);
-			fconf.addDependency(url);
+			fconf.addDependency(type, uri, comment);
+		}
+		else
+		{
+			throw new IllegalArgumentException("File must be added to configuration before dependencies are added");
+		}
+	}
+	
+	/**
+	 * 
+	 * @param file
+	 * @param type Type of dependency (HTML, Maven, Node, Ruby, Java, etc.)
+	 * @param pkgName
+	 * @param version
+	 * @param comment Comment to add with dependency
+	 */
+	public void addDependency(File file, String type, String pkgName, String version, String comment)
+	{
+		if(fileLookup.containsKey(file))
+		{
+			FileConfig fconf = fileLookup.get(file);
+			fconf.addDependency(type, null, pkgName, version, comment);
+		}
+		else
+		{
+			throw new IllegalArgumentException("File must be added to configuration before dependencies are added");
+		}
+	}
+
+	/**
+	 * 
+	 * @param file
+	 * @param type Type of dependency (HTML, Maven, Node, Ruby, Java, etc.)
+	 * @param groupId
+	 * @param artifactId
+	 * @param version
+	 * @param comment Comment to add with dependency
+	 */
+	public void addDependency(File file, String type, String groupId, String artifactId, String version, String comment)
+	{
+		if(fileLookup.containsKey(file))
+		{
+			FileConfig fconf = fileLookup.get(file);
+			fconf.addDependency(type, groupId, artifactId, version, comment);
 		}
 		else
 		{

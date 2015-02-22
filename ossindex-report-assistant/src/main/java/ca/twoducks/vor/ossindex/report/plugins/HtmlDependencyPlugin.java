@@ -130,22 +130,25 @@ public class HtmlDependencyPlugin extends AbstractScanPlugin implements IScanPlu
 	 */
 	private void extractLinks(File file, Document document) throws XPathExpressionException
 	{
+		String ext = FilenameUtils.getExtension(file.getName());
+		
 		XPath xPath = XPathFactory.newInstance().newXPath();
 		NodeList nodes = (NodeList) xPath.evaluate("//LINK", document.getDocumentElement(), XPathConstants.NODESET);
-		extractLink(file, nodes, "href");
+		extractLink(file, ext, nodes, "href");
 		
 		nodes = (NodeList) xPath.evaluate("//SCRIPT", document.getDocumentElement(), XPathConstants.NODESET);
-		extractLink(file, nodes, "src");
+		extractLink(file, ext, nodes, "src");
 
 	}
 
 	/** Find the external links and add them as dependencies to the configuration.
 	 * 
 	 * @param file
+	 * @param type Type of dependency (HTML, Maven, Node, Ruby, Java, etc.)
 	 * @param nodes
 	 * @param attribute Attribute that we will find the URL within
 	 */
-	private void extractLink(File file, NodeList nodes, String attribute)
+	private void extractLink(File file, String type, NodeList nodes, String attribute)
 	{
 		if(nodes != null)
 		{
@@ -161,7 +164,7 @@ public class HtmlDependencyPlugin extends AbstractScanPlugin implements IScanPlu
 			    	{
 			    		try
 			    		{
-							config.addDependency(file, new URL(href));
+							config.addDependency(file, type, new URL(href));
 						}
 			    		catch (MalformedURLException e)
 			    		{

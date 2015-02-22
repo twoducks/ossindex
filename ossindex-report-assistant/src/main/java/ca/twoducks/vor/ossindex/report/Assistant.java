@@ -35,8 +35,8 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
@@ -51,6 +51,8 @@ import org.apache.commons.csv.CSVPrinter;
 
 import ca.twoducks.vor.ossindex.report.plugins.ChecksumPlugin;
 import ca.twoducks.vor.ossindex.report.plugins.HtmlDependencyPlugin;
+import ca.twoducks.vor.ossindex.report.plugins.MavenDependencyPlugin;
+import ca.twoducks.vor.ossindex.report.plugins.NodeDependencyPlugin;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -95,7 +97,7 @@ public class Assistant
 	/**
 	 * List of scan plugins.
 	 */
-	private Set<IScanPlugin> plugins = new HashSet<IScanPlugin>();
+	private List<IScanPlugin> plugins = new LinkedList<IScanPlugin>();
 
 	/**
 	 * Initialize the host connection.
@@ -391,6 +393,8 @@ public class Assistant
 			if(line.hasOption(WITH_DEPENDENCIES_OPTION))
 			{
 				assistant.addScanPlugin(HtmlDependencyPlugin.class);
+				assistant.addScanPlugin(NodeDependencyPlugin.class);
+				assistant.addScanPlugin(MavenDependencyPlugin.class);
 			}
 
 			// Determine operation type

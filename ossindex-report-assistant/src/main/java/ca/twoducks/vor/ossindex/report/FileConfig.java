@@ -29,7 +29,7 @@ package ca.twoducks.vor.ossindex.report;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.URL;
+import java.net.URI;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -198,11 +198,27 @@ public class FileConfig
 
 	/** Add an HTML dependency to the file. This could be an external JavaScript or CSS file.
 	 * 
-	 * @param url
+	 * @param type Type of dependency (HTML, Maven, Node, Ruby, Java, etc.)
+	 * @param uri
 	 */
-	public void addDependency(URL url)
+	public void addDependency(String type, URI uri, String comment)
 	{
-		DependencyConfig dep = new DependencyConfig(url);
+		DependencyConfig dep = new DependencyConfig(type, uri);
+		dep.setComment(comment);
+		if(dependencies == null) dependencies = new HashSet<DependencyConfig>();
+		dependencies.add(dep);
+	}
+
+	/** Add a package/version to the dependency list.
+	 * 
+	 * @param type Type of dependency (HTML, Maven, Node, Ruby, Java, etc.)
+	 * @param pkgName
+	 * @param version
+	 */
+	public void addDependency(String type, String pkgName, String artifactId, String version, String comment)
+	{
+		DependencyConfig dep = new DependencyConfig(type, pkgName, artifactId, version);
+		dep.setComment(comment);
 		if(dependencies == null) dependencies = new HashSet<DependencyConfig>();
 		dependencies.add(dep);
 	}
