@@ -1,5 +1,5 @@
 /**
- *	Copyright (c) 2014-2015 TwoDucks Inc.
+ *	Copyright (c) 2015 TwoDucks Inc.
  *	All rights reserved.
  *	
  *	Redistribution and use in source and binary forms, with or without
@@ -26,36 +26,22 @@
  */
 package ca.twoducks.vor.ossindex.report.plugins;
 
-import java.io.File;
-import java.io.IOException;
-
+import ca.twoducks.vor.ossindex.report.Configuration;
 import ca.twoducks.vor.ossindex.report.IScanPlugin;
 
-/** This plugin simply adds files to the configuration. These files are actually
- * added by recording their SHA1 checksum for the public configuration, and
- * name/path information for the private configuration.
+/** Common scan plugin code
  * 
  * @author Ken Duck
  *
  */
-public class ChecksumPlugin extends AbstractScanPlugin implements IScanPlugin
+public abstract class AbstractScanPlugin implements IScanPlugin
 {
-	/*
-	 * (non-Javadoc)
-	 * @see ca.twoducks.vor.ossindex.report.IScanPlugin#run(java.io.File)
-	 */
+	protected Configuration config;
+	
 	@Override
-	public void run(File file)
+	public void setConfiguration(Configuration config)
 	{
-		try
-		{
-			config.addFile(file);
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
+		this.config = config;
 	}
-
 
 }

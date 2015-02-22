@@ -50,6 +50,7 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 
 import ca.twoducks.vor.ossindex.report.plugins.ChecksumPlugin;
+import ca.twoducks.vor.ossindex.report.plugins.HtmlDependencyPlugin;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -80,6 +81,12 @@ import com.google.gson.GsonBuilder;
  */
 public class Assistant
 {
+	/**
+	 * Option name indicating that dependency information should be extracted from source
+	 * and configuration files when possible.
+	 */
+	private static final String WITH_DEPENDENCIES_OPTION = "deps";
+
 	/**
 	 * 
 	 */
@@ -115,6 +122,11 @@ public class Assistant
 	{
 		if(file.isFile())
 		{
+			// Progress information
+			System.out.println(file);
+			System.out.flush();
+			
+			// Run through each scan plugin
 			for(IScanPlugin plugin: plugins)
 			{
 				plugin.run(file);
@@ -255,11 +267,11 @@ public class Assistant
 	 * 
 	 * @param class1
 	 */
-	private void addScanPlugin(Class<ChecksumPlugin> cls)
+	private void addScanPlugin(Class<?> cls)
 	{
 		try
 		{
-			ChecksumPlugin plugin = cls.newInstance();
+			IScanPlugin plugin = (IScanPlugin) cls.newInstance();
 			plugin.setConfiguration(config);
 			plugins.add(plugin);
 		}
@@ -347,6 +359,8 @@ public class Assistant
 
 		options.addOption(OptionBuilder.withArgName("dir").hasArg().withDescription("output directory").create("D"));
 		
+		options.addOption(WITH_DEPENDENCIES_OPTION, false, "Scan source and configuration files to locate possible dependency information");
+		
 		return options;
 	}
 
@@ -374,6 +388,10 @@ public class Assistant
 			
 			// Add default plugins
 			assistant.addScanPlugin(ChecksumPlugin.class);
+			if(line.hasOption(WITH_DEPENDENCIES_OPTION))
+			{
+				assistant.addScanPlugin(HtmlDependencyPlugin.class);
+			}
 
 			// Determine operation type
 			boolean doScan = line.hasOption("scan");

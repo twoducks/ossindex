@@ -28,6 +28,7 @@ package ca.twoducks.vor.ossindex.report;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -59,6 +60,12 @@ public class Configuration
 	private List<FileConfig> files = new LinkedList<FileConfig>();
 	
 	/**
+	 * Lookup table allowing us to find a FileConfig mapping to a specified File. This is useful
+	 * when building a configuration.
+	 */
+	transient private Map<File, FileConfig> fileLookup = new HashMap<File, FileConfig>();
+	
+	/**
 	 * Map of project identifier (names) to ProjectGroup. A ProjectGroup collects similar
 	 * projects together. For more information see the comment at the head of the ProjectGroup
 	 * class itself.
@@ -82,6 +89,7 @@ public class Configuration
 	{
 		FileConfig config = new FileConfig(file);
 		files.add(config);
+		fileLookup.put(file,  config);
 	}
 
 	/**
@@ -159,7 +167,11 @@ public class Configuration
 			}
 			else
 			{
-				System.err.println("Duplicate digest: " + digest);
+				// This is not an issue, really. Duplicates can happen when the file
+				// is found in multiple locations. We *may* want to reduce duplicates to
+				// reduce the size of the file, but proximity may be useful in identifying
+				// files.
+				// System.err.println("Duplicate digest: " + digest);
 			}
 		}
 		
@@ -198,6 +210,25 @@ public class Configuration
 
 
 			}
+		}
+	}
+
+	/** Add a dependency from the specified file to a particular URL. For example, the file
+	 * may be an HTML file, and the dependency to a JavaScript or CSS file.
+	 * 
+	 * @param file
+	 * @param url
+	 */
+	public void addDependency(File file, URL url)
+	{
+		if(fileLookup.containsKey(file))
+		{
+			FileConfig fconf = fileLookup.get(file);
+			fconf.addDependency(url);
+		}
+		else
+		{
+			throw new IllegalArgumentException("File must be added to configuration before dependencies are added");
 		}
 	}
 }

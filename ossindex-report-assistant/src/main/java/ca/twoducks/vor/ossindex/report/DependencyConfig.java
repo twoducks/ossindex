@@ -1,5 +1,5 @@
 /**
- *	Copyright (c) 2014-2015 TwoDucks Inc.
+ *	Copyright (c) 2015 TwoDucks Inc.
  *	All rights reserved.
  *	
  *	Redistribution and use in source and binary forms, with or without
@@ -24,38 +24,36 @@
  *	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ca.twoducks.vor.ossindex.report.plugins;
+package ca.twoducks.vor.ossindex.report;
 
-import java.io.File;
-import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 
-import ca.twoducks.vor.ossindex.report.IScanPlugin;
-
-/** This plugin simply adds files to the configuration. These files are actually
- * added by recording their SHA1 checksum for the public configuration, and
- * name/path information for the private configuration.
+/** Contains information about a file dependency.
  * 
  * @author Ken Duck
  *
  */
-public class ChecksumPlugin extends AbstractScanPlugin implements IScanPlugin
+public class DependencyConfig
 {
-	/*
-	 * (non-Javadoc)
-	 * @see ca.twoducks.vor.ossindex.report.IScanPlugin#run(java.io.File)
+	private String href;
+
+	/** Construct a dependency to an external HTTP accessible file.
+	 * 
+	 * @param url
 	 */
-	@Override
-	public void run(File file)
+	public DependencyConfig(URL url)
 	{
-		try
-		{
-			config.addFile(file);
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
+		this.href = url.toString();
 	}
 
-
+	/** Get the URL corresponding to the dependency (if applicable).
+	 * 
+	 * @return
+	 * @throws MalformedURLException
+	 */
+	public URL getUrl() throws MalformedURLException
+	{
+		return new URL(href);
+	}
 }

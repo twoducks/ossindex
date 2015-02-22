@@ -29,6 +29,9 @@ package ca.twoducks.vor.ossindex.report;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URL;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
@@ -52,6 +55,11 @@ public class FileConfig
 	 * circumstance is much more error prone.
 	 */
 	private boolean ignored;
+	
+	/**
+	 * List of dependencies found in the file.
+	 */
+	private Set<DependencyConfig> dependencies = null;
 
 	/**
 	 * 
@@ -68,9 +76,6 @@ public class FileConfig
 			is = new FileInputStream(file);
 			digest = DigestUtils.shaHex(is);
 			path = file.getPath();
-			
-			// Progress information
-			System.err.println(file);
 		}
 		finally
 		{
@@ -189,5 +194,16 @@ public class FileConfig
 	public boolean isIgnored()
 	{
 		return ignored;
+	}
+
+	/** Add an HTML dependency to the file. This could be an external JavaScript or CSS file.
+	 * 
+	 * @param url
+	 */
+	public void addDependency(URL url)
+	{
+		DependencyConfig dep = new DependencyConfig(url);
+		if(dependencies == null) dependencies = new HashSet<DependencyConfig>();
+		dependencies.add(dep);
 	}
 }
