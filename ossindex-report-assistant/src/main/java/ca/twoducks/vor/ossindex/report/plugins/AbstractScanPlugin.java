@@ -27,6 +27,7 @@
 package ca.twoducks.vor.ossindex.report.plugins;
 
 import ca.twoducks.vor.ossindex.report.Configuration;
+import ca.twoducks.vor.ossindex.report.IConfiguration;
 import ca.twoducks.vor.ossindex.report.IScanPlugin;
 
 /** Common scan plugin code
@@ -36,12 +37,11 @@ import ca.twoducks.vor.ossindex.report.IScanPlugin;
  */
 public abstract class AbstractScanPlugin implements IScanPlugin
 {
-	protected Configuration config;
+	protected IConfiguration config;
 	
 	@Override
-	public void setConfiguration(Configuration config)
+	public void setConfiguration(IConfiguration config)
 	{
 		this.config = config;
 	}
-
 }

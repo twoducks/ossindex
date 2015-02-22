@@ -48,7 +48,7 @@ import org.apache.commons.csv.CSVPrinter;
  * @author Ken Duck
  *
  */
-public class Configuration
+public class Configuration implements IConfiguration
 {
 	/**
 	 * Timestamp indicating when the configuration file was made/updated
@@ -243,17 +243,26 @@ public class Configuration
 	 */
 	public void addDependency(File file, String type, URI uri, String comment)
 	{
+		addDependency(file, type, null, uri, null, comment);
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see ca.twoducks.vor.ossindex.report.IConfiguration#addDependency(java.io.File, java.lang.String, java.lang.String, java.net.URI, java.lang.String)
+	 */
+	@Override
+	public void addDependency(File file, String type, String artifactId, URI uri, String version, String comment)
+	{
 		if(fileLookup.containsKey(file))
 		{
 			FileConfig fconf = fileLookup.get(file);
-			fconf.addDependency(type, uri, comment);
+			fconf.addDependency(type, artifactId, uri, version, comment);
 		}
 		else
 		{
 			throw new IllegalArgumentException("File must be added to configuration before dependencies are added");
 		}
 	}
-	
 	/**
 	 * 
 	 * @param file
@@ -296,4 +305,5 @@ public class Configuration
 			throw new IllegalArgumentException("File must be added to configuration before dependencies are added");
 		}
 	}
+
 }

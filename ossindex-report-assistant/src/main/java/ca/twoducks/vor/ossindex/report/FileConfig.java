@@ -201,9 +201,9 @@ public class FileConfig
 	 * @param type Type of dependency (HTML, Maven, Node, Ruby, Java, etc.)
 	 * @param uri
 	 */
-	public void addDependency(String type, URI uri, String comment)
+	public void addDependency(String type, String artifactId, URI uri, String version, String comment)
 	{
-		DependencyConfig dep = new DependencyConfig(type, uri);
+		DependencyConfig dep = new DependencyConfig(type, artifactId, uri, version);
 		dep.setComment(comment);
 		if(dependencies == null) dependencies = new HashSet<DependencyConfig>();
 		dependencies.add(dep);

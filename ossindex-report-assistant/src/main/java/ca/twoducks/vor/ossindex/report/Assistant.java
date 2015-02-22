@@ -50,6 +50,7 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 
 import ca.twoducks.vor.ossindex.report.plugins.ChecksumPlugin;
+import ca.twoducks.vor.ossindex.report.plugins.GemfileDependencyPlugin;
 import ca.twoducks.vor.ossindex.report.plugins.HtmlDependencyPlugin;
 import ca.twoducks.vor.ossindex.report.plugins.MavenDependencyPlugin;
 import ca.twoducks.vor.ossindex.report.plugins.NodeDependencyPlugin;
@@ -395,6 +396,7 @@ public class Assistant
 				assistant.addScanPlugin(HtmlDependencyPlugin.class);
 				assistant.addScanPlugin(NodeDependencyPlugin.class);
 				assistant.addScanPlugin(MavenDependencyPlugin.class);
+				assistant.addScanPlugin(GemfileDependencyPlugin.class);
 			}
 
 			// Determine operation type

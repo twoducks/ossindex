@@ -27,29 +27,72 @@
 package ca.twoducks.vor.ossindex.report;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URL;
 
-/** Scanning plugins are used to perform pre-configuration source analysis to supply
- * additional information for the configuration, such as:
- * 
- *   o Dependencies from dependency files
- *   o "Includes/requires" type information 
+/** Allows us to swap in different configurations. Specifically for testing.
  * 
  * @author Ken Duck
  *
  */
-public interface IScanPlugin
+public interface IConfiguration
 {
-
-	/** Indicate the configuration that the plugin is working with.
-	 * 
-	 * @param config
-	 */
-	public void setConfiguration(IConfiguration config);
-	
-	/** Run the plugin against the specified file.
+	/**
 	 * 
 	 * @param file
 	 */
-	void run(File file);
+	void addFile(File file) throws IOException;
+	
+	/**
+	 * 
+	 * @param file
+	 * @param type Type of dependency (HTML, Maven, Node, Ruby, Java, etc.)
+	 * @param gemName
+	 * @param version
+	 * @param comment
+	 */
+	void addDependency(File file, String type, String gemName, String version, String comment);
+
+	/**
+	 * 
+	 * @param file
+	 * @param type Type of dependency (HTML, Maven, Node, Ruby, Java, etc.)
+	 * @param url
+	 */
+	void addDependency(File file, String type, URL url);
+
+	/**
+	 * 
+	 * @param file
+	 * @param type Type of dependency (HTML, Maven, Node, Ruby, Java, etc.)
+	 * @param gemName
+	 * @param uri
+	 * @param version 
+	 * @param comment
+	 */
+	void addDependency(File file, String type, String gemName, URI uri, String version, String comment);
+	
+	/**
+	 * 
+	 * @param file
+	 * @param type Type of dependency (HTML, Maven, Node, Ruby, Java, etc.)
+	 * @param uri
+	 * @param comment
+	 */
+	void addDependency(File file, String type, URI uri, String comment);
+
+	/**
+	 * 
+	 * @param file
+	 * @param type Type of dependency (HTML, Maven, Node, Ruby, Java, etc.)
+	 * @param groupId
+	 * @param artifactId
+	 * @param version
+	 * @param comment
+	 */
+	void addDependency(File file, String type, String groupId, String artifactId, String version, String comment);
+
+
 
 }

@@ -99,12 +99,15 @@ public class DependencyConfig
 	/** Construct a dependency to an external HTTP accessible file.
 	 * 
 	 * @param type 
+	 * @param artifactId 
 	 * @param url
 	 */
-	public DependencyConfig(String type, URI uri)
+	public DependencyConfig(String type, String artifactId, URI uri, String version)
 	{
+		this.artifactId = artifactId;
 		this.type = type;
 		this.ref = uri.toString();
+		this.version = version;
 	}
 
 	/**
