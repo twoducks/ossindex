@@ -413,7 +413,8 @@ class GemLineParser
 	{
 		StringBuilder comment = new StringBuilder("{");
 		if(source != null) comment.append("\"source\": \"" + source + "\"");
-		if(group != null) comment.append("\"group\": \"" + group + "\"");
+		else comment.append("\"source\": \"\"");
+		if(group != null) comment.append(", \"group\": \"" + group + "\"");
 		comment.append("}");
 		
 		if(uri != null)
