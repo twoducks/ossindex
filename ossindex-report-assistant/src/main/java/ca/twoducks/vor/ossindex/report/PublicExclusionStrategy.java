@@ -37,6 +37,20 @@ import com.google.gson.FieldAttributes;
  */
 public class PublicExclusionStrategy implements ExclusionStrategy
 {
+	/**
+	 * Indicate whether dependencies should be exported to the public file.
+	 */
+	private boolean exportDependencies;
+
+	/**
+	 * 
+	 * @param exportDependencies Indicate whether dependencies should be exported to the public file.
+	 */
+	public PublicExclusionStrategy(boolean exportDependencies)
+	{
+		this.exportDependencies = exportDependencies;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * @see com.google.gson.ExclusionStrategy#shouldSkipClass(java.lang.Class)
@@ -60,6 +74,7 @@ public class PublicExclusionStrategy implements ExclusionStrategy
 		{
 			String name = attr.getName();
 			if("path".equals(name)) return true;
+			if(!exportDependencies && "dependencies".equals(name)) return true;
 		}
 		return false;
 	}

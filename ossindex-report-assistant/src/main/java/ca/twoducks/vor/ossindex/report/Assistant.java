@@ -101,11 +101,25 @@ public class Assistant
 	private List<IScanPlugin> plugins = new LinkedList<IScanPlugin>();
 
 	/**
+	 * Indicate whether dependencies should be exported to the public file.
+	 */
+	private boolean exportDependencies;
+
+	/**
 	 * Initialize the host connection.
 	 * @throws IOException 
 	 */
 	public Assistant() throws IOException
 	{
+	}
+	
+	/** Indicate whether dependencies should be exported to the public file.
+	 * 
+	 * @param b
+	 */
+	private void setExportDependencies(boolean b)
+	{
+		exportDependencies = true;
 	}
 
 	/** Scan the specified file/directory, reporting on any third party.
@@ -188,7 +202,7 @@ public class Assistant
 		{
 			config.touch();
 			Gson gson = new GsonBuilder().setPrettyPrinting()
-					.setExclusionStrategies(new PublicExclusionStrategy())
+					.setExclusionStrategies(new PublicExclusionStrategy(exportDependencies))
 					.create();
 			gson.toJson(config, writer);
 		}
@@ -391,12 +405,14 @@ public class Assistant
 			
 			// Add default plugins
 			assistant.addScanPlugin(ChecksumPlugin.class);
+			assistant.addScanPlugin(HtmlDependencyPlugin.class);
+			assistant.addScanPlugin(NodeDependencyPlugin.class);
+			assistant.addScanPlugin(MavenDependencyPlugin.class);
+			assistant.addScanPlugin(GemfileDependencyPlugin.class);
+			
 			if(line.hasOption(WITH_DEPENDENCIES_OPTION))
 			{
-				assistant.addScanPlugin(HtmlDependencyPlugin.class);
-				assistant.addScanPlugin(NodeDependencyPlugin.class);
-				assistant.addScanPlugin(MavenDependencyPlugin.class);
-				assistant.addScanPlugin(GemfileDependencyPlugin.class);
+				assistant.setExportDependencies(true);
 			}
 
 			// Determine operation type
@@ -482,5 +498,4 @@ public class Assistant
 		formatter.printHelp("assistant", getOptions());
 		return;
 	}
-
 }
