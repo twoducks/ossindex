@@ -74,6 +74,7 @@ public class PublicExclusionStrategy implements ExclusionStrategy
 		{
 			String name = attr.getName();
 			if("path".equals(name)) return true;
+			if("name".equals(name)) return true;
 			if(!exportDependencies && "dependencies".equals(name)) return true;
 		}
 		return false;
