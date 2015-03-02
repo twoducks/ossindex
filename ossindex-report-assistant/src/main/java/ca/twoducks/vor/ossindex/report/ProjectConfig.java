@@ -168,52 +168,83 @@ public class ProjectConfig
 	 */
 	public void exportCsv(CSVPrinter csvOut, Map<String, FileConfig> lookup) throws IOException
 	{
-		for(String digest: files)
+		if(files.isEmpty())
 		{
-			if(lookup.containsKey(digest))
+			//String[] header = {"Path", "State", "Project Name", "Project URI", "Version", "CPEs", "Project Licenses", "File License", "Project Description", "Digest", "Comment"};
+			List<Object> row = new ArrayList<Object>();
+			row.add(null);
+			row.add("Dependency");
+			row.add(name);
+			List<String> urls = new LinkedList<String>();
+			if(home != null) urls.add(home);
+			if(project != null) urls.add(project);
+			if(scm != null)
 			{
-				FileConfig file = lookup.get(digest);
-				List<Object> row = new ArrayList<Object>();
-
-				String path = file.getPath();
-				if(path != null && !path.isEmpty())
+				if(project == null || !scm.toString().startsWith(project.toString()))
 				{
-					row.add(path);
+					urls.add(scm);
+				}
+			}
+			row.add(urls);
+			row.add(version);
+			row.add(getCpes());
+			row.add(licenses);
+
+			row.add(null);
+			row.add(description);
+			row.add(null);
+			row.add(getComment());
+
+			csvOut.printRecord(row);
+		}
+		else
+		{
+			for(String digest: files)
+			{
+				if(lookup.containsKey(digest))
+				{
+					FileConfig file = lookup.get(digest);
+					List<Object> row = new ArrayList<Object>();
+	
+					String path = file.getPath();
+					if(path != null && !path.isEmpty())
+					{
+						row.add(path);
+					}
+					else
+					{
+						row.add(file.getName());
+					}
+	
+					row.add(file.getState());
+					row.add(name);
+					List<String> urls = new LinkedList<String>();
+					if(home != null) urls.add(home);
+					if(project != null) urls.add(project);
+					if(scm != null)
+					{
+						if(project == null || !scm.toString().startsWith(project.toString()))
+						{
+							urls.add(scm);
+						}
+					}
+					row.add(urls);
+					row.add(version);
+					row.add(getCpes());
+					row.add(licenses);
+	
+					row.add(file.getLicense());
+					row.add(description);
+					row.add(digest);
+					row.add(file.getComment());
+	
+					csvOut.printRecord(row);
 				}
 				else
 				{
-					row.add(file.getName());
+					System.err.println("Unmatched digest found in project: " + digest);
 				}
-
-				row.add(file.getState());
-				row.add(name);
-				List<String> urls = new LinkedList<String>();
-				if(home != null) urls.add(home);
-				if(project != null) urls.add(project);
-				if(scm != null)
-				{
-					if(project == null || !scm.toString().startsWith(project.toString()))
-					{
-						urls.add(scm);
-					}
-				}
-				row.add(urls);
-				row.add(version);
-				row.add(getCpes());
-				row.add(licenses);
-
-				row.add(file.getLicense());
-				row.add(description);
-				row.add(digest);
-				row.add(file.getComment());
-
-				csvOut.printRecord(row);
 			}
-			else
-			{
-				System.err.println("Unmatched digest found in project: " + digest);
-			}
-
 		}
 	}
 }
