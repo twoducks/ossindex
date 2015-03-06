@@ -90,6 +90,10 @@ public class Assistant
 	 */
 	private static final String WITH_DEPENDENCIES_OPTION = "deps";
 
+	private static final String NO_IMAGES_OPTION = "no_images";
+
+	private static final String NO_ARTIFACTS_OPTION = "no_artifacts";
+
 	/**
 	 * 
 	 */
@@ -106,6 +110,16 @@ public class Assistant
 	private boolean exportDependencies;
 
 	/**
+	 * Indicates whether artifacts should be included in the CSV output
+	 */
+	private boolean includeArtifacts;
+
+	/**
+	 * Indicates whether images should be included in the CSV output
+	 */
+	private boolean includeImages;
+
+	/**
 	 * Initialize the host connection.
 	 * @throws IOException 
 	 */
@@ -119,7 +133,25 @@ public class Assistant
 	 */
 	private void setExportDependencies(boolean b)
 	{
-		exportDependencies = true;
+		exportDependencies = b;
+	}
+	
+	/** Indicates whether artifacts should be included in the CSV output.
+	 * 
+	 * @param b
+	 */
+	private void setIncludeArtifacts(boolean b)
+	{
+		includeArtifacts = b;
+	}
+
+	/** Indicates whether images should be included in the CSV output.
+	 * 
+	 * @param b
+	 */
+	private void setIncludeImages(boolean b)
+	{
+		includeImages = b;
 	}
 
 	/** Scan the specified file/directory, reporting on any third party.
@@ -270,7 +302,7 @@ public class Assistant
 		
 		try
 		{
-			config.exportCsv(csvOut);
+			config.exportCsv(csvOut, includeArtifacts, includeImages);
 		}
 		finally
 		{
@@ -377,6 +409,8 @@ public class Assistant
 		options.addOption(OptionBuilder.withArgName("dir").hasArg().withDescription("output directory").create("D"));
 		
 		options.addOption(WITH_DEPENDENCIES_OPTION, false, "Scan source and configuration files to locate possible dependency information");
+		options.addOption(NO_IMAGES_OPTION, false, "Don't include images in the CSV output");
+		options.addOption(NO_ARTIFACTS_OPTION, false, "Don't include build artifacts in the CSV output");
 		
 		return options;
 	}
@@ -414,6 +448,8 @@ public class Assistant
 			{
 				assistant.setExportDependencies(true);
 			}
+			assistant.setIncludeImages(!line.hasOption(NO_IMAGES_OPTION));
+			assistant.setIncludeArtifacts(!line.hasOption(NO_ARTIFACTS_OPTION));
 
 			// Determine operation type
 			boolean doScan = line.hasOption("scan");
@@ -498,4 +534,5 @@ public class Assistant
 		formatter.printHelp("assistant", getOptions());
 		return;
 	}
+
 }

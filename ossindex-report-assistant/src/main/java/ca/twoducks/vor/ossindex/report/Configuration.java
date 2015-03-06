@@ -154,14 +154,18 @@ public class Configuration implements IConfiguration
 	/** Export CSV configuration information.
 	 * 
 	 * @param csvOut
+	 * @param includeImages Indicates whether images should be included in the CSV output
+	 * @param includeArtifacts Indicates whether artifacts should be included in the CSV output
 	 * @throws IOException 
 	 */
-	public void exportCsv(CSVPrinter csvOut) throws IOException
+	public void exportCsv(CSVPrinter csvOut, boolean includeArtifacts, boolean includeImages) throws IOException
 	{
 		// Build a file lookup
 		Map<String,FileConfig> lookup = new HashMap<String,FileConfig>();
 		for(FileConfig file: files)
 		{
+			if(!includeArtifacts && file.isArtifact()) continue;
+			if(!includeImages && file.isImage()) continue;
 			String digest = file.getDigest();
 			if(!lookup.containsKey(digest))
 			{

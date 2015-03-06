@@ -48,7 +48,41 @@ public class FileConfig
 	private String license;
 	private String comment;
 	private String state;
+	
+	/**
+	 * Known artifact extensions.
+	 * 
+	 * FIXME: This should be loaded from a configuration file.
+	 */
+	private static Set<String> artifactExtensions = new HashSet<String>();
 
+	static
+	{
+		artifactExtensions.add("jar");
+		artifactExtensions.add("deb");
+	}
+	
+	/**
+	 * Known image extensions.
+	 * 
+	 * FIXME: This should be loaded from a configuration file.
+	 */
+	private static Set<String> imageExtensions = new HashSet<String>();
+	
+	static
+	{
+		imageExtensions.add("jpg");
+		imageExtensions.add("jpeg");
+		imageExtensions.add("png");
+		imageExtensions.add("gif");
+		imageExtensions.add("bmp");
+		imageExtensions.add("xbm");
+		imageExtensions.add("xpm");
+		imageExtensions.add("ico");
+		imageExtensions.add("svg");
+		imageExtensions.add("pspimage");
+	}
+	
 	/** 
 	 * Indicate whether or not this file was ignored for analysis purposes. This is
 	 * often done if the file is too small, since identifying a file origin in this
@@ -221,5 +255,43 @@ public class FileConfig
 		dep.setComment(comment);
 		if(dependencies == null) dependencies = new HashSet<DependencyConfig>();
 		dependencies.add(dep);
+	}
+
+	/** Indicates whether the file is a known artifact type. Currently done through file
+	 * extensions.
+	 * 
+	 * @return
+	 */
+	public boolean isArtifact()
+	{
+		if(name != null)
+		{
+			int index = name.lastIndexOf('.');
+			if(index >= 0)
+			{
+				String ext = name.substring(index + 1);
+				return artifactExtensions.contains(ext);
+			}
+		}
+		return false;
+	}
+
+	/** Indicates whether the file is a known artifact type. Currently done through file
+	 * extensions.
+	 * 
+	 * @return
+	 */
+	public boolean isImage()
+	{
+		if(name != null)
+		{
+			int index = name.lastIndexOf('.');
+			if(index >= 0)
+			{
+				String ext = name.substring(index + 1);
+				return imageExtensions.contains(ext);
+			}
+		}
+		return false;
 	}
 }

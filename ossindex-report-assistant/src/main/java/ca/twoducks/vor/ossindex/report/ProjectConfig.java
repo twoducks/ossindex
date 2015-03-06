@@ -242,7 +242,8 @@ public class ProjectConfig
 				}
 				else
 				{
-					System.err.println("Unmatched digest found in project: " + digest);
+					// This happens if we exclude some files from the output
+					// System.err.println("Unmatched digest found in project: " + digest);
 				}
 			}
 		}
