@@ -35,6 +35,7 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.nio.file.Files;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -185,9 +186,15 @@ public class Assistant
 		{
 			// Recursively do for all sub-folders and files.
 			File[] children = file.listFiles();
-			for (File child : children)
+			if(children != null)
 			{
-				recursiveScan(child);
+				for (File child : children)
+				{
+					if(!Files.isSymbolicLink(child.toPath()))
+					{
+						recursiveScan(child);
+					}
+				}
 			}
 		}
 	}
@@ -272,18 +279,35 @@ public class Assistant
 	 */
 	private Configuration load(File file) throws IOException
 	{
-		Reader reader = new FileReader(file);
-		Gson gson = new GsonBuilder().create();
-		try
+		if(file.getName().endsWith(".csv"))
 		{
-			return gson.fromJson(reader, Configuration.class);
+			return loadCsv(file);
 		}
-		finally
+		else
 		{
-			reader.close();
+			Reader reader = new FileReader(file);
+			Gson gson = new GsonBuilder().create();
+			try
+			{
+				return gson.fromJson(reader, Configuration.class);
+			}
+			finally
+			{
+				reader.close();
+			}
 		}
 	}
 	
+	/**
+	 * 
+	 * @param file
+	 * @return
+	 */
+	private Configuration loadCsv(File file)
+	{
+		throw new UnsupportedOperationException();
+	}
+
 	/** Export the configuration data into a CSV file. The CSV file may not
 	 * contain complete information, but is much easier for a human to work with.
 	 * Code will be added to allow conversion from CSV back into the JSON format.
