@@ -27,6 +27,7 @@
 package ca.twoducks.vor.ossindex.report;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -80,6 +81,45 @@ public class ProjectGroup
 		{
 			project.exportCsv(csvOut, lookup);
 		}
+	}
+
+	/** Get the project with the specified SCM (which should be unique). If it does not exist
+	 * then add one.
+	 * 
+	 * @param scmUri
+	 * @param version
+	 * @return
+	 */
+	public ProjectConfig getProject(String scmUri, String version)
+	{
+		for(ProjectConfig member: members)
+		{
+			try
+			{
+				if(scmUri.equals(member.getScmUri().toString()))
+				{
+					if(version == null || version.isEmpty())
+					{
+						return member;
+					}
+					else
+					{
+						if(version.equals(member.getVersion()))
+						{
+							return member;
+						}
+					}
+				}
+			}
+			catch (URISyntaxException e)
+			{
+				throw new AssertionError(e);
+			}
+		}
+		
+		ProjectConfig config = new ProjectConfig(scmUri, version);
+		members.add(config);
+		return config;
 	}
 
 }

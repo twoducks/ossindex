@@ -91,7 +91,19 @@ public class Configuration implements IConfiguration
 	{
 		FileConfig config = new FileConfig(file);
 		files.add(config);
-		fileLookup.put(file,  config);
+		fileLookup.put(file, config);
+	}
+	
+	/**
+	 * 
+	 * @param digest
+	 * @return
+	 */
+	public FileConfig addFile(String digest)
+	{
+		FileConfig config = new FileConfig(digest);
+		files.add(config);
+		return config;
 	}
 
 	/**
@@ -308,6 +320,21 @@ public class Configuration implements IConfiguration
 		{
 			throw new IllegalArgumentException("File must be added to configuration before dependencies are added");
 		}
+	}
+
+	/** Add a new project group to the configuration
+	 * 
+	 * @param projectName
+	 * @return
+	 */
+	public ProjectGroup getGroup(String projectName)
+	{
+		if(!projects.containsKey(projectName))
+		{
+			ProjectGroup group = new ProjectGroup();
+			projects.put(projectName, group);
+		}
+		return projects.get(projectName);
 	}
 
 }

@@ -66,6 +66,24 @@ public class ProjectConfig
 	private List<String> licenses = new LinkedList<String>();
 	private List<String> files = new LinkedList<String>();
 	private String comment;
+	
+	/**
+	 * Constructor required for JSON deserialization
+	 */
+	public ProjectConfig()
+	{
+		
+	}
+
+	/** Create a project with a specified SCM URI as the key
+	 * 
+	 * @param scmUri
+	 */
+	public ProjectConfig(String scmUri, String version)
+	{
+		this.scm = scmUri;
+		this.version = version;
+	}
 
 	/** Get the project name.
 	 * 
@@ -75,6 +93,24 @@ public class ProjectConfig
 	{
 		return name;
 	}
+	
+	/**
+	 * 
+	 * @param name
+	 */
+	public void setName(String name)
+	{
+		this.name = name;
+	}
+	
+	/**
+	 * 
+	 * @param description
+	 */
+	public void setDescription(String description)
+	{
+		this.description = description;
+	}
 
 	/** Get the project version.
 	 * 
@@ -83,6 +119,15 @@ public class ProjectConfig
 	public String getVersion()
 	{
 		return version;
+	}
+	
+	/** Set the project version
+	 * 
+	 * @param version
+	 */
+	public void setVersion(String version)
+	{
+		this.version = version;
 	}
 
 	/** Get a URL that identifies the project.
@@ -94,6 +139,15 @@ public class ProjectConfig
 	{
 		if(project == null) return null;
 		return new URL(project);
+	}
+	
+	/** Set the project URI
+	 * 
+	 * @param project
+	 */
+	public void setProjectUri(String project)
+	{
+		this.project = project;
 	}
 
 	/** Get the SCM URI that can be used to retrieve the source or build artifact.
@@ -117,6 +171,15 @@ public class ProjectConfig
 		if(home == null) return null;
 		return new URL(home);
 	}
+	
+	/** Set the home URI
+	 * 
+	 * @param home
+	 */
+	public void setHomeUri(String home)
+	{
+		this.home = home;
+	}
 
 	/** Get a list of all CPE matches against the project.
 	 * 
@@ -137,6 +200,20 @@ public class ProjectConfig
 		return cpes;
 	}
 
+
+	/** Add a new CPE
+	 * 
+	 * @param cpe
+	 */
+	public void addCpe(String cpe)
+	{
+		if(cpe != null)
+		{
+			if(cpes == null) cpes = new LinkedList<String>();
+			cpes.add(cpe);
+		}
+	}
+
 	/** Get a list of all licenses identified for the project itself.
 	 * 
 	 * @return
@@ -146,6 +223,18 @@ public class ProjectConfig
 		return licenses;
 	}
 
+	/** Add a new project license
+	 * 
+	 * @param license
+	 */
+	public void addLicense(String license)
+	{
+		if(license != null)
+		{
+			licenses.add(license);
+		}
+	}
+	
 	/** Get a list of all file digests that were matched against the project.
 	 * 
 	 * @return
@@ -154,10 +243,33 @@ public class ProjectConfig
 	{
 		return files;
 	}
+	
+	/** Add a file to the project. Files are identified by their digest. We don't
+	 * store the entire file config here to avoid duplication.
+	 * 
+	 * @param fileConfig
+	 */
+	public void addFile(FileConfig fileConfig)
+	{
+		files.add(fileConfig.getDigest());
+	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public String getComment()
 	{
 		return comment;
+	}
+	
+	/** Set the project comment
+	 * 
+	 * @param comment
+	 */
+	public void setComment(String comment)
+	{
+		this.comment = comment;
 	}
 
 	/** Export CSV configuration information.
@@ -219,15 +331,30 @@ public class ProjectConfig
 					row.add(file.getState());
 					row.add(name);
 					List<String> urls = new LinkedList<String>();
-					if(home != null) urls.add(home);
-					if(project != null) urls.add(project);
-					if(scm != null)
+					if(scm != null) urls.add(scm);
+					else urls.add("");
+					
+					// Only report the project if it is different from the SCM
+					boolean doProject = true;
+					if(project != null)
 					{
-						if(project == null || !scm.toString().startsWith(project.toString()))
+						if(scm != null)
 						{
-							urls.add(scm);
+							// Remove trailing slashes to simplify comparison
+							while(project.endsWith("/")) project = project.substring(0, project.length() - 1);
+							while(scm.endsWith("/")) scm = scm.substring(0, scm.length() - 1);
+							if(project.equals(scm)) doProject = false;
 						}
 					}
+					else
+					{
+						doProject = false;
+					}
+					if(doProject) urls.add(project);
+					else urls.add("");
+					
+					if(home != null) urls.add(home);
+					else urls.add("");
 					row.add(urls);
 					row.add(version);
 					row.add(getCpes());
@@ -248,4 +375,5 @@ public class ProjectConfig
 			}
 		}
 	}
+
 }

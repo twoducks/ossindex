@@ -49,6 +49,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.csv.CSVRecord;
 
 import ca.twoducks.vor.ossindex.report.plugins.ChecksumPlugin;
 import ca.twoducks.vor.ossindex.report.plugins.GemfileDependencyPlugin;
@@ -298,14 +299,111 @@ public class Assistant
 		}
 	}
 	
-	/**
+	/** Convert a CSV file back to a JSON config file.
 	 * 
 	 * @param file
 	 * @return
+	 * @throws IOException 
 	 */
-	private Configuration loadCsv(File file)
+	private Configuration loadCsv(File file) throws IOException
 	{
-		throw new UnsupportedOperationException();
+		Configuration config = new Configuration();
+		Reader in = new FileReader(file);
+		Iterable<CSVRecord> records = CSVFormat.EXCEL.withHeader().parse(in);
+		for (CSVRecord record : records)
+		{
+		    String path = record.get("Path");
+		    String state = record.get("State");
+		    if(!"UNASSIGNED".equals(state))
+		    {
+			    String projectName = record.get("Project Name");
+			    // There could be 3 "projectUri" fields. In order:
+			    //   SCM,Project,Home
+			    //
+			    // SCM should always have a value, others *may*
+			    String[] projectUris = parseList(record.get("Project URI"));
+			    String scmUri = projectUris[0];
+			    String projectUri = null;
+			    String homeUri = null;
+			    if(projectUris.length > 1 && !projectUris[1].trim().isEmpty()) projectUri = projectUris[1].trim();
+			    if(projectUris.length > 2 && !projectUris[2].trim().isEmpty()) homeUri = projectUris[2].trim();
+			    
+			    String version = record.get("Version");
+			    String[] cpes = parseList(record.get("CPEs"));
+			    String[] projectLicenses = parseList(record.get("Project Licenses"));
+			    String fileLicense = record.get("File License");
+			    String projectDescription = record.get("Project Description");
+			    String digest = record.get("Digest");
+			    String comment = record.get("Comment");
+			    
+			    // Add the checksum to the file list
+			    FileConfig fileConfig = config.addFile(digest);
+	
+			    if(path != null && !path.isEmpty())
+			    {
+			    	File aFile = new File(path);
+			    	File parent = aFile.getParentFile();
+			    	if(parent == null) fileConfig.setName(path);
+			    	else fileConfig.setPath(path);
+			    }
+			    
+			    if(fileLicense != null && !fileLicense.isEmpty()) fileConfig.setLicense(fileLicense);
+			    if(comment != null && !comment.isEmpty()) fileConfig.setComment(comment);
+			    if(state != null && !state.isEmpty()) fileConfig.setState(state);
+			    
+			    ProjectGroup group = config.getGroup(projectName);
+			    ProjectConfig project = group.getProject(scmUri, version);
+			    
+			    // If the project has not been defined yet then set its values
+			    if(project.getName() == null)
+			    {
+				    project.setName(projectName);
+				    if(projectUri != null) project.setProjectUri(projectUri);
+				    if(homeUri != null) project.setHomeUri(homeUri);
+				    
+				    if(cpes != null)
+				    {
+				    	for(String cpe: cpes)
+				    	{
+				    		project.addCpe(cpe);
+				    	}
+				    }
+				    
+				    if(projectLicenses != null)
+				    {
+				    	for(String license: projectLicenses)
+				    	{
+				    		project.addLicense(license);
+				    	}
+				    }
+				    
+				    if(projectDescription != null && !projectDescription.isEmpty()) project.setDescription(projectDescription);
+			    }
+			    
+			    // Add the file to the project
+			    project.addFile(fileConfig);
+		    }
+		}
+		return config;
+	}
+
+	/** Parse a list of values
+	 * 
+	 * @param s
+	 * @return
+	 */
+	private String[] parseList(String s)
+	{
+		if(s == null || s.trim().isEmpty()) return new String[0];
+		if(s != null && s.startsWith("[") && s.endsWith("]"))
+		{
+			s = s.substring(1, s.length() - 1);
+			return s.split(",");
+		}
+		else
+		{
+			throw new IllegalArgumentException("Illegal list definition: " + s);
+		}
 	}
 
 	/** Export the configuration data into a CSV file. The CSV file may not

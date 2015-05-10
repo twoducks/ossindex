@@ -120,6 +120,15 @@ public class FileConfig
 		}
 	}
 	
+	/** When converting from CSV we only have a digest
+	 * 
+	 * @param digest
+	 */
+	public FileConfig(String digest)
+	{
+		this.digest = digest;
+	}
+
 	/** SHA1 digest for the file. Note that this is a platform dependent value.
 	 * 
 	 * @return
@@ -138,6 +147,15 @@ public class FileConfig
 		return name;
 	}
 	
+	/** Set the name for the file
+	 * 
+	 * @param name
+	 */
+	public void setName(String name)
+	{
+		this.name = name;
+	}
+	
 	/** Local path to the file.
 	 * 
 	 * @return
@@ -145,6 +163,15 @@ public class FileConfig
 	public String getPath()
 	{
 		return path;
+	}
+	
+	/** Set the path to the file
+	 * 
+	 * @param path
+	 */
+	public void setPath(String path)
+	{
+		this.path = path;
 	}
 	
 	/** Text name of a license found within the file itself, often in a header comment.
@@ -156,6 +183,15 @@ public class FileConfig
 		return license;
 	}
 	
+	/** Set the file license name
+	 * 
+	 * @param license
+	 */
+	public void setLicense(String license)
+	{
+		this.license = license;
+	}
+	
 	/** The comment provides a location for user-formatted information
 	 * about the file.
 	 * 
@@ -164,6 +200,15 @@ public class FileConfig
 	public String getComment()
 	{
 		return comment;
+	}
+	
+	/** Set the file comment
+	 * 
+	 * @param comment
+	 */
+	public void setComment(String comment)
+	{
+		this.comment = comment;
 	}
 	
 	/** Merge the data from the given file into the fields that are not currently
@@ -195,6 +240,15 @@ public class FileConfig
 	public String getState()
 	{
 		return state;
+	}
+	
+	/** Set the analysis state for the file
+	 * 
+	 * @param state
+	 */
+	public void setState(String state)
+	{
+		this.state = state;
 	}
 
 	/*
