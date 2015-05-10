@@ -336,6 +336,27 @@ public class Assistant
 			    String digest = record.get("Digest");
 			    String comment = record.get("Comment");
 			    
+			    String overrideName = null;
+			    String overrideLicense = null;
+			    try {overrideName = record.get("Override Name");} catch(IllegalArgumentException e) {}
+			    try {overrideLicense = record.get("Override License");} catch(IllegalArgumentException e) {}
+			    
+			    // Override applicable fields
+			    if(overrideName != null)
+			    {
+			    	projectName = overrideName;
+			    	scmUri = null;
+			    	projectUri = null;
+			    	homeUri = null;
+			    	version = null;
+			    	cpes = new String[0];
+		    		projectLicenses = new String[0];
+			    	if(overrideLicense != null)
+			    	{
+			    		projectLicenses = new String[] {overrideLicense};
+			    	}
+			    }
+			    
 			    // Add the checksum to the file list
 			    FileConfig fileConfig = config.addFile(digest);
 	
@@ -416,7 +437,7 @@ public class Assistant
 	private void exportCsv(File dir) throws IOException
 	{
 		File file = new File(dir, "ossindex.csv");
-		CSVFormat format = CSVFormat.DEFAULT.withRecordSeparator("\n").withCommentMarker('#');
+		CSVFormat format = CSVFormat.EXCEL.withRecordSeparator("\n").withCommentMarker('#');
 		FileWriter fout = new FileWriter(file);
 		CSVPrinter csvOut = new CSVPrinter(fout, format);
 		String[] header = {"Path", "State", "Project Name", "Project URI", "Version", "CPEs", "Project Licenses", "File License", "Project Description", "Digest", "Comment"};
