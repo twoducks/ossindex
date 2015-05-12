@@ -331,7 +331,7 @@ public class Configuration implements IConfiguration
 	{
 		if(!projects.containsKey(projectName))
 		{
-			ProjectGroup group = new ProjectGroup();
+			ProjectGroup group = new ProjectGroup(projectName);
 			projects.put(projectName, group);
 		}
 		return projects.get(projectName);

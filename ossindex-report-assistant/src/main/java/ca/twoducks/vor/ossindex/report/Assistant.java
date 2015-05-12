@@ -342,7 +342,7 @@ public class Assistant
 			    try {overrideLicense = record.get("Override License");} catch(IllegalArgumentException e) {}
 			    
 			    // Override applicable fields
-			    if(overrideName != null)
+			    if(overrideName != null && !overrideName.trim().isEmpty())
 			    {
 			    	projectName = overrideName;
 			    	scmUri = null;
@@ -351,6 +351,7 @@ public class Assistant
 			    	version = null;
 			    	cpes = new String[0];
 		    		projectLicenses = new String[0];
+		    		projectDescription = null;
 			    	if(overrideLicense != null)
 			    	{
 			    		projectLicenses = new String[] {overrideLicense};

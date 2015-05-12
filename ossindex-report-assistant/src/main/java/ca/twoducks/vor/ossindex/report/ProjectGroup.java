@@ -27,6 +27,7 @@
 package ca.twoducks.vor.ossindex.report;
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.Map;
@@ -61,13 +62,25 @@ public class ProjectGroup
 	/**
 	 * The name of the group
 	 */
-	@SuppressWarnings("unused")
 	private String name;
-	
+
 	/**
 	 * Collection of actual project configurations.
 	 */
 	private Set<ProjectConfig> members = new HashSet<ProjectConfig>();
+
+	public ProjectGroup()
+	{
+	}
+
+	/**
+	 * 
+	 * @param name
+	 */
+	public ProjectGroup(String name)
+	{
+		this.name = name;
+	}
 
 	/** Export CSV configuration information.
 	 * 
@@ -96,18 +109,29 @@ public class ProjectGroup
 		{
 			try
 			{
-				if(scmUri.equals(member.getScmUri().toString()))
+				URI memberUri = member.getScmUri();
+				if(scmUri != null)
 				{
-					if(version == null || version.isEmpty())
+					if(memberUri != null && scmUri.equals(memberUri.toString()))
 					{
-						return member;
-					}
-					else
-					{
-						if(version.equals(member.getVersion()))
+						if(version == null || version.isEmpty())
 						{
 							return member;
 						}
+						else
+						{
+							if(version.equals(member.getVersion()))
+							{
+								return member;
+							}
+						}
+					}
+				}
+				else
+				{
+					if(memberUri == null && name.equals(member.getName()))
+					{
+						return member;
 					}
 				}
 			}
@@ -116,7 +140,7 @@ public class ProjectGroup
 				throw new AssertionError(e);
 			}
 		}
-		
+
 		ProjectConfig config = new ProjectConfig(scmUri, version);
 		members.add(config);
 		return config;
