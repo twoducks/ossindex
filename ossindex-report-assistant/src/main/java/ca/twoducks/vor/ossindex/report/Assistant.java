@@ -90,7 +90,7 @@ public class Assistant
 	 * Option name indicating that dependency information should be extracted from source
 	 * and configuration files when possible.
 	 */
-	private static final String WITH_DEPENDENCIES_OPTION = "deps";
+	private static final String NO_DEPENDENCIES_OPTION = "no_deps";
 
 	private static final String NO_IMAGES_OPTION = "no_images";
 
@@ -109,7 +109,7 @@ public class Assistant
 	/**
 	 * Indicate whether dependencies should be exported to the public file.
 	 */
-	private boolean exportDependencies;
+	private boolean exportDependencies = true;
 
 	/**
 	 * Indicates whether artifacts should be included in the CSV output
@@ -563,7 +563,7 @@ public class Assistant
 
 		options.addOption(OptionBuilder.withArgName("dir").hasArg().withDescription("output directory").create("D"));
 		
-		options.addOption(WITH_DEPENDENCIES_OPTION, false, "Scan source and configuration files to locate possible dependency information");
+		options.addOption(NO_DEPENDENCIES_OPTION, false, "Don't scan source and configuration files to locate possible dependency information");
 		options.addOption(NO_IMAGES_OPTION, false, "Don't include images in the CSV output");
 		options.addOption(NO_ARTIFACTS_OPTION, false, "Don't include build artifacts in the CSV output");
 		
@@ -599,7 +599,11 @@ public class Assistant
 			assistant.addScanPlugin(MavenDependencyPlugin.class);
 			assistant.addScanPlugin(GemfileDependencyPlugin.class);
 			
-			if(line.hasOption(WITH_DEPENDENCIES_OPTION))
+			if(line.hasOption(NO_DEPENDENCIES_OPTION))
+			{
+				assistant.setExportDependencies(false);
+			}
+			else
 			{
 				assistant.setExportDependencies(true);
 			}
