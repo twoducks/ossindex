@@ -95,6 +95,8 @@ public class Assistant
 	private static final String NO_IMAGES_OPTION = "no_images";
 
 	private static final String NO_ARTIFACTS_OPTION = "no_artifacts";
+	
+	private static final String VERBOSE_OUTPUT_OPTION = "context";
 
 	/**
 	 * 
@@ -226,35 +228,43 @@ public class Assistant
 		return writer.toString();
 	}
 
-	/** Export both the public and private JSON files to the specified directory.
+	/** Export both the public JSON file to the specified directory.
 	 * 
 	 * @param dir
 	 */
-	private void exportJson(File dir) throws IOException
+	private void exportPublicJson(File dir) throws IOException
 	{
-		// Write the private configuration file
-		File privateFile = new File(dir, "ossindex.private.json");
-		PrintWriter writer = new PrintWriter(new FileWriter(privateFile));
-		try
-		{
-			config.touch();
-			Gson gson = new GsonBuilder().setPrettyPrinting().create();
-			gson.toJson(config, writer);
-		}
-		finally
-		{
-			writer.close();
-		}
-		
 		// Write the public configuration file
-		File publicFile = new File(dir, "ossindex.public.json");
-		writer = new PrintWriter(new FileWriter(publicFile));
+		File publicFile = new File(dir, "vorindex.public.json");
+		PrintWriter writer = new PrintWriter(new FileWriter(publicFile));
 		try
 		{
 			config.touch();
 			Gson gson = new GsonBuilder().setPrettyPrinting()
 					.setExclusionStrategies(new PublicExclusionStrategy(exportDependencies))
 					.create();
+			gson.toJson(config, writer);
+		}
+		finally
+		{
+			writer.close();
+		}
+	}
+	
+	/** Export both the private JSON file to the specified directory.
+	 * 
+	 * @param dir
+	 * @throws IOException
+	 */
+	private void exportPrivateJson(File dir) throws IOException
+	{
+		// Write the private configuration file
+		File privateFile = new File(dir, "vorindex.private.json");
+		PrintWriter writer = new PrintWriter(new FileWriter(privateFile));
+		try
+		{
+			config.touch();
+			Gson gson = new GsonBuilder().setPrettyPrinting().create();
 			gson.toJson(config, writer);
 		}
 		finally
@@ -448,7 +458,7 @@ public class Assistant
 	 */
 	private void exportCsv(File dir) throws IOException
 	{
-		File file = new File(dir, "ossindex.csv");
+		File file = new File(dir, "vorindex.csv");
 		CSVFormat format = CSVFormat.EXCEL.withRecordSeparator("\n").withCommentMarker('#');
 		FileWriter fout = new FileWriter(file);
 		CSVPrinter csvOut = new CSVPrinter(fout, format);
@@ -488,11 +498,13 @@ public class Assistant
 
 	/** Create the initial configuration files by scanning a directory.
 	 * 
+	 * By default only the public JSON file is exported.
+	 * 
 	 * @param scan
 	 * @param outputDir
 	 * @throws IOException
 	 */
-	private static void doScan(Assistant assistant, String scan, File outputDir) throws IOException
+	private static void doScan(Assistant assistant, String scan, File outputDir, boolean includeContext) throws IOException
 	{
 		File scanDir = new File(scan);
 		if(!scanDir.exists())
@@ -502,8 +514,12 @@ public class Assistant
 		}
 
 		assistant.scan(scanDir);
-		assistant.exportJson(outputDir);
-		assistant.exportCsv(outputDir);
+		assistant.exportPublicJson(outputDir);
+		if(includeContext)
+		{
+			assistant.exportPrivateJson(outputDir);
+			assistant.exportCsv(outputDir);
+		}
 	}
 
 	/** Import a JSON file and output a pretty-printed file along with the CSV file.
@@ -522,7 +538,8 @@ public class Assistant
 		}
 
 		assistant.merge(null, file);
-		assistant.exportJson(outputDir);
+		assistant.exportPublicJson(outputDir);
+		assistant.exportPrivateJson(outputDir);
 		assistant.exportCsv(outputDir);
 	}
 
@@ -543,7 +560,8 @@ public class Assistant
 		
 		
 		assistant.merge(f1, f2);
-		assistant.exportJson(outputDir);
+		assistant.exportPublicJson(outputDir);
+		assistant.exportPrivateJson(outputDir);
 		assistant.exportCsv(outputDir);
 	}
 
@@ -566,6 +584,7 @@ public class Assistant
 		options.addOption(NO_DEPENDENCIES_OPTION, false, "Don't scan source and configuration files to locate possible dependency information");
 		options.addOption(NO_IMAGES_OPTION, false, "Don't include images in the CSV output");
 		options.addOption(NO_ARTIFACTS_OPTION, false, "Don't include build artifacts in the CSV output");
+		options.addOption(VERBOSE_OUTPUT_OPTION, false, "Output extra context files (private and CSV files)");
 		
 		return options;
 	}
@@ -640,7 +659,7 @@ public class Assistant
 					return;
 				}
 
-				doScan(assistant, line.getOptionValue("scan"), outputDir);
+				doScan(assistant, line.getOptionValue("scan"), outputDir, line.hasOption(VERBOSE_OUTPUT_OPTION));
 				return;
 			}
 
