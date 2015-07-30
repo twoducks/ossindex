@@ -52,4 +52,11 @@ public interface IScanPlugin
 	 */
 	void run(File file);
 
+	/** Should we ignore this file because it will be handled in another way?
+	 * 
+	 * @param file
+	 * @return
+	 */
+	public boolean ignore(File file);
+
 }

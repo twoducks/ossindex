@@ -171,6 +171,17 @@ public class Assistant
 	 */
 	private void recursiveScan(File file)
 	{
+		// Do one of the scan plugins tell us to ignore this folder?
+		// This will usually be done if we are going to identify the
+		// dependencies from a dependency file.
+		if(exportDependencies)
+		{
+			for(IScanPlugin plugin: plugins)
+			{
+				if(plugin.ignore(file)) return;
+			}
+		}
+		
 		if(file.isFile())
 		{
 			// Progress information

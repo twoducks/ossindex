@@ -123,6 +123,19 @@ public class GemfileDependencyPlugin extends AbstractScanPlugin
 	{
 		parser.setGroup(null);
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see ca.twoducks.vor.ossindex.report.IScanPlugin#ignore(java.io.File)
+	 */
+	@Override
+	public boolean ignore(File file)
+	{
+		String fname = file.getName();
+		// Ignore already extracted node_modules. We are assuming at the moment that any
+		// node will be handled by the gemfile dependencies.
+		return "node_modules".equals(fname);
+	}
 }
 
 /** Dirty parser for a single 'gem' line in a gemfile. This will add a

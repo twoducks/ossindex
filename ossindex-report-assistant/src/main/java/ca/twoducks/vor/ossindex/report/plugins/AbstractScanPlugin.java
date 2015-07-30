@@ -26,6 +26,8 @@
  */
 package ca.twoducks.vor.ossindex.report.plugins;
 
+import java.io.File;
+
 import ca.twoducks.vor.ossindex.report.Configuration;
 import ca.twoducks.vor.ossindex.report.IConfiguration;
 import ca.twoducks.vor.ossindex.report.IScanPlugin;
@@ -39,9 +41,23 @@ public abstract class AbstractScanPlugin implements IScanPlugin
 {
 	protected IConfiguration config;
 	
+	/*
+	 * (non-Javadoc)
+	 * @see ca.twoducks.vor.ossindex.report.IScanPlugin#setConfiguration(ca.twoducks.vor.ossindex.report.IConfiguration)
+	 */
 	@Override
 	public void setConfiguration(IConfiguration config)
 	{
 		this.config = config;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see ca.twoducks.vor.ossindex.report.IScanPlugin#ignore(java.io.File)
+	 */
+	@Override
+	public boolean ignore(File file)
+	{
+		return false;
 	}
 }
